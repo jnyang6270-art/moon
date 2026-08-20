@@ -683,7 +683,7 @@
     <div class="viewport">
       <!-- 1. Background scene & parallax -->
       <div class="scene">
-        <img class="landscape" id="landscape-img" src="background.jpg" alt="Starry Sky Sea Landscape">
+        <img class="landscape" id="landscape-img" src="https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/background.jpg" alt="Starry Sky Sea Landscape">
         <div class="scene-vignette"></div>
         <div class="ambient-glow"></div>
       </div>
@@ -1055,9 +1055,9 @@
       cookieGroup.add(innerGroup);
       scene.add(cookieGroup);
 
-      // Procedural fallback Moon so animation is 100% INSTANT without waiting 58MB download
+      // Procedural fallback Moon so animation is 100% INSTANT without waiting download
       const textureLoader = new THREE.TextureLoader();
-      const moonTex = textureLoader.load('texture_1.jpg');
+      const moonTex = textureLoader.load('https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/texture_1.jpg');
       moonTex.colorSpace = THREE.SRGBColorSpace;
 
       const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
@@ -1074,9 +1074,9 @@
       stageEl.classList.add('is-ready');
       sceneNavEl.classList.add('is-ready');
 
-      // Async GLB model loader for high-poly details
+      // Async GLB model loader from jsDelivr Global CDN
       const loader = new GLTFLoader();
-      const modelUrl = 'Hi3D-moon.glb';
+      const modelUrl = 'https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/moon-jsdelivr.glb';
 
       loader.load(
         modelUrl,
