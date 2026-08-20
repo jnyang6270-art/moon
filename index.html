@@ -1055,15 +1055,29 @@
       cookieGroup.add(innerGroup);
       scene.add(cookieGroup);
 
-      // Procedural fallback Moon so animation is 100% INSTANT without waiting download
-      const textureLoader = new THREE.TextureLoader();
-      const moonTex = textureLoader.load('https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/texture_1.jpg');
-      moonTex.colorSpace = THREE.SRGBColorSpace;
+      // Procedural in-memory fallback Moon (0 external requests, 0% chance of 404)
+      const canvasTex = document.createElement('canvas');
+      canvasTex.width = 512;
+      canvasTex.height = 512;
+      const ctx = canvasTex.getContext('2d');
+      ctx.fillStyle = '#cfc6b8';
+      ctx.fillRect(0, 0, 512, 512);
+      for (let i = 0; i < 40; i++) {
+        const cx = Math.random() * 512;
+        const cy = Math.random() * 512;
+        const cr = Math.random() * 30 + 5;
+        ctx.fillStyle = 'rgba(110, 100, 85, 0.18)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const proceduralTex = new THREE.CanvasTexture(canvasTex);
+      proceduralTex.colorSpace = THREE.SRGBColorSpace;
 
       const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
       const sphereMat = new THREE.MeshStandardMaterial({
-        map: moonTex,
-        roughness: 0.82,
+        map: proceduralTex,
+        roughness: 0.85,
         metalness: 0.05
       });
       const fallbackMesh = new THREE.Mesh(sphereGeo, sphereMat);
@@ -1074,42 +1088,58 @@
       stageEl.classList.add('is-ready');
       sceneNavEl.classList.add('is-ready');
 
-      // Async GLB model loader from jsDelivr Global CDN
+      // Async GLB model loader with robust traversal and multi-source fallback
       const loader = new GLTFLoader();
-      const modelUrl = 'https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/moon-jsdelivr.glb';
 
-      loader.load(
-        modelUrl,
-        function (gltf) {
-          const model = gltf.scene;
-          const box = new THREE.Box3().setFromObject(model);
-          const center = box.getCenter(new THREE.Vector3());
-          const size = box.getSize(new THREE.Vector3());
+      function applyGltfModel(gltf) {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
 
-          model.position.sub(center);
+        model.position.sub(center);
 
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const baseScale = 532 / (maxDim || 1);
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const baseScale = 532 / (maxDim || 1);
 
-          model.traverse(function (child) {
-            if (child.isMesh && child.material) {
-              child.material.metalness = 0;
-              child.material.roughness = Math.max(0.72, child.material.roughness || 0.8);
-              if (child.material.map) {
-                child.material.map.colorSpace = THREE.SRGBColorSpace;
-                child.material.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+        model.traverse((child) => {
+          if (child.isMesh && child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach((mat) => {
+              mat.metalness = 0;
+              mat.roughness = Math.max(0.72, mat.roughness !== undefined ? mat.roughness : 0.8);
+              if (mat.map) {
+                mat.map.colorSpace = THREE.SRGBColorSpace;
+                mat.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+                mat.map.needsUpdate = true;
               }
-            }
-          });
+              mat.needsUpdate = true;
+            });
+          }
+        });
 
-          // Smoothly swap fallback mesh for high-poly model
-          innerGroup.remove(fallbackMesh);
-          innerGroup.scale.set(baseScale, baseScale, baseScale);
-          innerGroup.add(model);
-        },
+        // Smoothly swap fallback mesh for high-poly model
+        innerGroup.remove(fallbackMesh);
+        innerGroup.scale.set(baseScale, baseScale, baseScale);
+        innerGroup.add(model);
+      }
+
+      // 1. Try jsDelivr Global CDN
+      loader.load(
+        'https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/moon-jsdelivr.glb',
+        applyGltfModel,
         undefined,
-        function (err) {
-          console.log('Using optimized procedural moon');
+        function (err1) {
+          console.warn('jsDelivr failed, trying GitHub Releases...', err1);
+          // 2. Fallback to GitHub Releases direct URL
+          loader.load(
+            'https://github.com/jnyang6270-art/moon/releases/download/v1.0.0/Hi3D-moon.glb',
+            applyGltfModel,
+            undefined,
+            function (err2) {
+              console.warn('Using procedural moon fallback', err2);
+            }
+          );
         }
       );
 
