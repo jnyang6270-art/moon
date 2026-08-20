@@ -11,9 +11,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Passion+One:wght@400&family=Reenie+Beanie&display=swap" rel="stylesheet">
 
-  <!-- Three.js + GLTFLoader -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+  <!-- Three.js + GLTFLoader (Modern ES Modules & Import Map for r160) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
 
   <style>
     @font-face {
@@ -865,11 +871,11 @@
     </div>
   </main>
 
-  <script>
-    (function () {
-      'use strict';
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-      // --- 1. Easing helpers ---
+    // --- 1. Easing helpers ---
       function clamp(val, min = 0, max = 1) {
         return Math.max(min, Math.min(max, val));
       }
@@ -1069,7 +1075,7 @@
       sceneNavEl.classList.add('is-ready');
 
       // Async GLB model loader for high-poly details
-      const loader = new THREE.GLTFLoader();
+      const loader = new GLTFLoader();
       const modelUrl = 'Hi3D-moon.glb';
 
       loader.load(
@@ -1338,8 +1344,6 @@
       window.addEventListener('pagehide', () => {
         if (animFrameId) cancelAnimationFrame(animFrameId);
       });
-
-    })();
   </script>
 </body>
 </html>
