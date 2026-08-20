@@ -109,6 +109,7 @@
       object-fit: cover;
       will-change: transform;
       pointer-events: none;
+      transition: filter 0.5s ease;
     }
 
     @media (max-width: 1060px) and (max-aspect-ratio: 49/64) {
@@ -128,6 +129,26 @@
       z-index: 2;
     }
 
+    /* Ambient dynamic glow overlay */
+    .ambient-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      width: 600px;
+      height: 600px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(74, 129, 146, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      animation: pulseGlow 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.9; }
+    }
+
     /* Stage Canvas System (1726 x 1195) */
     .stage {
       position: absolute;
@@ -139,7 +160,7 @@
       transform-origin: center center;
       z-index: 3;
       opacity: 0;
-      transition: opacity 220ms ease-out;
+      transition: opacity 300ms ease-out;
       pointer-events: none;
     }
 
@@ -165,7 +186,7 @@
       height: 0;
       z-index: 10;
       opacity: 0;
-      transition: opacity 220ms ease-out;
+      transition: opacity 300ms ease-out;
       pointer-events: auto;
     }
 
@@ -185,7 +206,11 @@
       color: #ffffff;
       transform-origin: top left;
       transform: scale(var(--header-scale));
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .brand-link:hover {
+      transform: scale(calc(var(--header-scale) * 1.05));
     }
 
     .brand-svg {
@@ -216,17 +241,19 @@
       backdrop-filter: blur(10.7px);
       -webkit-backdrop-filter: blur(10.7px);
       color: #ffffff;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      transition: background 0.2s, transform 0.2s;
+      transition: background 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s ease, box-shadow 0.25s ease;
     }
 
     .nav-pill:hover {
-      background: rgba(0, 0, 0, 0.28);
+      background: rgba(0, 0, 0, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     }
 
     .nav-pill.shop-pill {
@@ -235,10 +262,11 @@
       gap: 10px;
       justify-content: flex-start;
       padding-left: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .nav-pill.shop-pill:hover {
-      background: #222222;
+      background: #1f1f1f;
     }
 
     .nav-pill.cookies-pill { width: 86px; }
@@ -261,9 +289,10 @@
       width: 138.3796px;
       height: 47px;
       border-radius: 14px;
-      background: rgba(11, 11, 11, 0.1);
+      background: rgba(11, 11, 11, 0.12);
       backdrop-filter: blur(15.7px);
       -webkit-backdrop-filter: blur(15.7px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -282,7 +311,7 @@
 
     .social-link:hover {
       opacity: 1;
-      transform: scale(1.1);
+      transform: scale(1.2);
     }
 
     .cart-btn {
@@ -290,7 +319,7 @@
       height: 47px;
       border-radius: 14px;
       background: #0b0b0b;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -301,10 +330,59 @@
 
     .cart-btn:hover {
       background: #222222;
-      transform: scale(1.04);
+      transform: translateY(-2px) scale(1.04);
     }
 
-    /* Hamburger & Mobile Menu */
+    /* Floating Interactive Controls */
+    .action-hud {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 20;
+      pointer-events: auto;
+    }
+
+    .hud-btn {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 21px;
+      background: rgba(11, 11, 11, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.95);
+      color: #0b0b0b;
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .scroll-hint {
+      animation: bounceHint 2s infinite ease-in-out;
+    }
+
+    @keyframes bounceHint {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+      60% { transform: translateY(-3px); }
+    }
+
+    /* Mobile / Tablet Hamburger */
     .hamburger-btn {
       display: none;
       position: absolute;
@@ -314,7 +392,7 @@
       height: 47px;
       border-radius: 14px;
       background: #0b0b0b;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       cursor: pointer;
       flex-direction: column;
       align-items: center;
@@ -331,15 +409,9 @@
       transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
-    .hamburger-btn.is-active .line-1 {
-      transform: translateY(6px) rotate(45deg);
-    }
-    .hamburger-btn.is-active .line-2 {
-      opacity: 0;
-    }
-    .hamburger-btn.is-active .line-3 {
-      transform: translateY(-6px) rotate(-45deg);
-    }
+    .hamburger-btn.is-active .line-1 { transform: translateY(6px) rotate(45deg); }
+    .hamburger-btn.is-active .line-2 { opacity: 0; }
+    .hamburger-btn.is-active .line-3 { transform: translateY(-6px) rotate(-45deg); }
 
     .mobile-menu-panel {
       position: fixed;
@@ -347,11 +419,11 @@
       right: 20px;
       width: min(360px, calc(100vw - 40px));
       border-radius: 24px;
-      background: rgba(22, 59, 70, 0.48);
+      background: rgba(22, 59, 70, 0.75);
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 18px 60px rgba(7, 24, 30, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 18px 60px rgba(7, 24, 30, 0.35);
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -402,6 +474,7 @@
       text-transform: uppercase;
       text-align: center;
       z-index: 4;
+      text-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
     }
 
     .diff-title {
@@ -416,12 +489,14 @@
       text-transform: uppercase;
       text-align: center;
       z-index: 4;
+      text-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
     }
 
     .split-char {
       display: inline-block;
       transform-origin: 50% 70%;
       will-change: transform, opacity;
+      transition: color 0.3s ease;
     }
 
     /* Ingredient Callouts */
@@ -439,14 +514,16 @@
       align-items: center;
       gap: 6px;
       pointer-events: auto;
+      cursor: pointer;
     }
 
     .callout-label {
       height: 81px;
       border-radius: 24px;
-      background: rgba(0, 0, 0, 0.15);
+      background: rgba(0, 0, 0, 0.18);
       backdrop-filter: blur(35.8px);
       -webkit-backdrop-filter: blur(35.8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
       font-size: 20px;
       font-weight: 600;
@@ -456,6 +533,7 @@
       padding: 0 26px;
       white-space: nowrap;
       will-change: transform, opacity;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .callout-tile {
@@ -463,12 +541,23 @@
       height: 81px;
       border-radius: 24.1277px;
       background: #0b0b0b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       will-change: transform, opacity;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+    }
+
+    .callout-item:hover .callout-tile {
+      transform: scale(1.08) rotate(5deg) !important;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    }
+    .callout-item:hover .callout-label {
+      background: rgba(0, 0, 0, 0.32);
+      border-color: rgba(255, 255, 255, 0.25);
     }
 
     /* Callout absolute placements */
@@ -590,6 +679,7 @@
       <div class="scene">
         <img class="landscape" id="landscape-img" src="https://www.image2url.com/r2/default/files/1787246255644-5484b26c-9815-4ea2-89a5-3c44a45fa086.webp" alt="Landscape">
         <div class="scene-vignette"></div>
+        <div class="ambient-glow"></div>
       </div>
 
       <!-- 2. Header UI -->
@@ -755,6 +845,23 @@
           </div>
         </div>
       </div>
+
+      <!-- 4. Floating Action / Animation Controls HUD -->
+      <div class="action-hud">
+        <button class="hud-btn" id="play-demo-btn" aria-label="Auto Play Animation">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <span id="play-btn-text">自動播放 3D 動畫</span>
+        </button>
+        <button class="hud-btn scroll-hint" id="scroll-hint-btn">
+          <span>滾動探索</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M19 12l-7 7-7-7"/>
+          </svg>
+        </button>
+      </div>
+
     </div>
   </main>
 
@@ -869,7 +976,7 @@
         } else {
           // Desktop Corridor: between hero-title bottom (409) and "The Difference" top (937)
           const corridorCenter = (409 + 937) / 2; // 673
-          heroY = 1195 / 2 - corridorCenter; // relative to stage center (0,0) -> ~ -75.5
+          heroY = 1195 / 2 - corridorCenter; // ~ -75.5 relative to stage center
           sectionY = 0;
           heroScale = 1;
           sectionScale = 1;
@@ -891,7 +998,18 @@
       }
       updateLayout();
 
-      // --- 4. Three.js Setup ---
+      // --- 4. Mouse Interactive Parallax Tracking ---
+      let mouseX = 0;
+      let mouseY = 0;
+      let smoothMouseX = 0;
+      let smoothMouseY = 0;
+
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      // --- 5. Three.js Setup ---
       const canvas = document.getElementById('cookie-canvas');
       const scene = new THREE.Scene();
 
@@ -910,16 +1028,20 @@
       renderer.setClearColor(0x000000, 0);
 
       // Lighting
-      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x704019, 0.82);
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x704019, 0.9);
       scene.add(hemiLight);
 
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
       keyLight.position.set(-450, 650, 1200);
       scene.add(keyLight);
 
-      const rimLight = new THREE.DirectionalLight(0xffb56b, 0.24);
+      const rimLight = new THREE.DirectionalLight(0xffb56b, 0.45);
       rimLight.position.set(600, -100, 500);
       scene.add(rimLight);
+
+      const fillLight = new THREE.DirectionalLight(0x73b0c2, 0.35);
+      fillLight.position.set(0, -500, 800);
+      scene.add(fillLight);
 
       // Groups
       const cookieGroup = new THREE.Group();
@@ -927,7 +1049,26 @@
       cookieGroup.add(innerGroup);
       scene.add(cookieGroup);
 
-      let isGlbLoaded = false;
+      // Procedural fallback Moon so animation is 100% INSTANT without waiting 58MB download
+      const textureLoader = new THREE.TextureLoader();
+      const moonTex = textureLoader.load('https://jnyang6270-art.github.io/moon/texture_1.jpg');
+      moonTex.colorSpace = THREE.SRGBColorSpace;
+
+      const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
+      const sphereMat = new THREE.MeshStandardMaterial({
+        map: moonTex,
+        roughness: 0.82,
+        metalness: 0.05
+      });
+      const fallbackMesh = new THREE.Mesh(sphereGeo, sphereMat);
+      innerGroup.add(fallbackMesh);
+
+      // Instant readiness gate: Show stage immediately!
+      let introStartTime = performance.now() + 100;
+      stageEl.classList.add('is-ready');
+      sceneNavEl.classList.add('is-ready');
+
+      // Async GLB model loader for high-poly details
       const loader = new THREE.GLTFLoader();
       const modelUrl = 'https://github.com/jnyang6270-art/moon/releases/download/v1.0.0/Hi3D-moon.glb';
 
@@ -943,7 +1084,6 @@
 
           const maxDim = Math.max(size.x, size.y, size.z);
           const baseScale = 532 / (maxDim || 1);
-          innerGroup.scale.set(baseScale, baseScale, baseScale);
 
           model.traverse(function (child) {
             if (child.isMesh && child.material) {
@@ -956,62 +1096,50 @@
             }
           });
 
+          // Smoothly swap fallback mesh for high-poly model
+          innerGroup.remove(fallbackMesh);
+          innerGroup.scale.set(baseScale, baseScale, baseScale);
           innerGroup.add(model);
-          isGlbLoaded = true;
-          checkAllReady();
         },
         undefined,
         function (err) {
-          console.warn('GLB Load Error, falling back to sphere preview', err);
-          // Fallback photoreal-style moon sphere
-          const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
-          const sphereMat = new THREE.MeshStandardMaterial({
-            color: 0xeae5dc,
-            roughness: 0.88,
-            metalness: 0.05
-          });
-          const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
-          innerGroup.add(sphereMesh);
-          isGlbLoaded = true;
-          checkAllReady();
+          console.log('Using optimized procedural moon');
         }
       );
-
-      // --- 5. Readiness Gate ---
-      let isReady = false;
-      let introStartTime = null;
-
-      function checkAllReady() {
-        Promise.all([
-          document.fonts.ready,
-          new Promise((resolve) => {
-            if (landscapeImg.complete) resolve();
-            else {
-              landscapeImg.onload = resolve;
-              landscapeImg.onerror = resolve;
-            }
-          })
-        ]).then(() => {
-          if (!isReady && isGlbLoaded) {
-            isReady = true;
-            stageEl.classList.add('is-ready');
-            sceneNavEl.classList.add('is-ready');
-            introStartTime = performance.now() + 360;
-          }
-        });
-      }
-
-      // Initial check in case fonts & images load very fast
-      checkAllReady();
 
       // --- 6. Scroll Tracking & Smooth Interpolation ---
       let targetScroll = 0;
       let smoothScroll = 0;
+      let isAutoPlaying = false;
+      let autoPlayDirection = 1;
 
       window.addEventListener('scroll', function () {
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        targetScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
+        if (!isAutoPlaying) {
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          targetScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
+        }
       }, { passive: true });
+
+      // Auto Demo Play Animation Button
+      const playDemoBtn = document.getElementById('play-demo-btn');
+      const playBtnText = document.getElementById('play-btn-text');
+      const scrollHintBtn = document.getElementById('scroll-hint-btn');
+
+      playDemoBtn.addEventListener('click', () => {
+        isAutoPlaying = !isAutoPlaying;
+        if (isAutoPlaying) {
+          playBtnText.textContent = '暫停動畫';
+          playDemoBtn.style.background = '#2563eb';
+        } else {
+          playBtnText.textContent = '自動播放 3D 動畫';
+          playDemoBtn.style.background = '';
+        }
+      });
+
+      scrollHintBtn.addEventListener('click', () => {
+        const nextScroll = smoothScroll > 0.5 ? 0 : document.documentElement.scrollHeight;
+        window.scrollTo({ top: nextScroll, behavior: 'smooth' });
+      });
 
       // Smooth scroll navigation
       document.querySelectorAll('[data-scroll]').forEach(btn => {
@@ -1023,7 +1151,6 @@
           } else if (target === 'bottom') {
             window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
           }
-          // Close mobile menu if open
           if (mobileMenuOpen) toggleMobileMenu(false);
         });
       });
@@ -1070,28 +1197,48 @@
         const dt = clamp(now - lastTime, 0, 64);
         lastTime = now;
 
+        // Auto Play Animation loop if active
+        if (isAutoPlaying) {
+          targetScroll += 0.004 * autoPlayDirection;
+          if (targetScroll >= 1) {
+            targetScroll = 1;
+            autoPlayDirection = -1;
+          } else if (targetScroll <= 0) {
+            targetScroll = 0;
+            autoPlayDirection = 1;
+          }
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          window.scrollTo(0, targetScroll * maxScroll);
+        }
+
         // Smooth scroll decay
-        const scrollFactor = 1 - Math.exp(-dt / 220);
+        const scrollFactor = 1 - Math.exp(-dt / 180);
         smoothScroll += (targetScroll - smoothScroll) * scrollFactor;
         if (Math.abs(targetScroll - smoothScroll) < 0.00008) {
           smoothScroll = targetScroll;
         }
 
+        // Smooth mouse tracking
+        smoothMouseX += (mouseX - smoothMouseX) * 0.08;
+        smoothMouseY += (mouseY - smoothMouseY) * 0.08;
+
         // Section transition: scroll 8% -> 80%
         const rawTrans = clamp((smoothScroll - 0.08) / 0.72);
         const transition = easeInOutCubic(rawTrans);
 
-        // A. Background Parallax
+        // A. Background Parallax with dynamic mouse tilt
         const heroCrop = -layoutState.bgHeight * 0.115;
         const finalCrop = -layoutState.bgHeight * 0.303;
-        const currentBgY = lerp(heroCrop, finalCrop, transition);
-        landscapeImg.style.transform = `translate3d(-50%, ${currentBgY}px, 0)`;
+        const currentBgY = lerp(heroCrop, finalCrop, transition) + smoothMouseY * 12;
+        const currentBgX = smoothMouseX * -15;
+        landscapeImg.style.transform = `translate3d(calc(-50% + ${currentBgX}px), ${currentBgY}px, 0)`;
 
         // B. Intro timing
-        let introProgress = 0;
-        if (introStartTime !== null) {
-          introProgress = clamp((now - introStartTime) / 1350);
-        }
+        let introProgress = clamp((now - introStartTime) / 1350);
+
+        // Continuous ambient floating wave
+        const idleFloat = Math.sin(now * 0.002) * 14;
+        const idleRotate = now * 0.0004;
 
         // C. Hero Title Letter Animations
         const nHero = heroSpans.length;
@@ -1116,10 +1263,14 @@
           const fadeOut = 1 - clamp((leaveP - 0.58) / 0.42);
           opacity *= fadeOut;
 
-          const finalX = initX + scatterX;
-          const finalY = initY + scatterY;
-          const finalRotX = initRotX + scatterRotX;
-          const finalRotZ = initRotZ + scatterRotZ;
+          // Mouse reactive parallax on titles
+          const mouseTiltX = smoothMouseX * (i - nHero / 2) * 1.2;
+          const mouseTiltY = smoothMouseY * 6;
+
+          const finalX = initX + scatterX + mouseTiltX;
+          const finalY = initY + scatterY + mouseTiltY;
+          const finalRotX = initRotX + scatterRotX + smoothMouseY * -8;
+          const finalRotZ = initRotZ + scatterRotZ + smoothMouseX * 4;
 
           span.style.transform = `translate3d(${finalX}px, ${finalY}px, 0) rotateX(${finalRotX}deg) rotateZ(${finalRotZ}deg)`;
           span.style.opacity = opacity;
@@ -1152,7 +1303,7 @@
           label.style.opacity = labelP;
         });
 
-        // F. Cookie 3D Transformation
+        // F. Cookie / Moon 3D Transformation & Dynamic Motion
         const cookieIntro = easeOutBack(clamp((introProgress - 0.22) / 0.72));
 
         // Position
@@ -1161,20 +1312,20 @@
         const curHeroX = lerp(155, targetHeroX, cookieIntro);
         const curHeroY = lerp(430, targetHeroY, cookieIntro);
 
-        let finalCookieY = lerp(curHeroY, layoutState.sectionY, transition) + Math.sin(transition * Math.PI) * 9;
-        let finalCookieX = curHeroX + Math.sin(transition * Math.PI) * -20;
+        let finalCookieY = lerp(curHeroY, layoutState.sectionY, transition) + Math.sin(transition * Math.PI) * 9 + idleFloat;
+        let finalCookieX = curHeroX + Math.sin(transition * Math.PI) * -20 + smoothMouseX * 18;
 
         // Scale
         const curHeroScale = lerp(0.18, layoutState.heroScale, cookieIntro);
         const finalCookieScale = lerp(curHeroScale, layoutState.sectionScale * 0.96, transition);
 
-        cookieGroup.position.set(finalCookieX, -finalCookieY, 0); // note inverted Y in Three.js coords
+        cookieGroup.position.set(finalCookieX, -finalCookieY, 0);
         cookieGroup.scale.set(finalCookieScale, finalCookieScale, finalCookieScale);
 
-        // Rotation: Y axis flip + Z tilt
-        cookieGroup.rotation.y = transition * Math.PI;
-        cookieGroup.rotation.z = lerp(-0.09, 0.19, transition);
-        cookieGroup.rotation.x = Math.sin(now * 0.001) * 0.04; // subtle floating breathing
+        // Dynamic 3D Rotation: Scroll Flip + Continuous Idle Spin + Mouse Tilt
+        cookieGroup.rotation.y = transition * Math.PI + idleRotate + smoothMouseX * 0.35;
+        cookieGroup.rotation.z = lerp(-0.09, 0.19, transition) + Math.sin(now * 0.0015) * 0.03;
+        cookieGroup.rotation.x = Math.sin(now * 0.001) * 0.06 + smoothMouseY * -0.3;
 
         // Render Three.js scene
         renderer.render(scene, camera);
