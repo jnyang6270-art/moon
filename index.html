@@ -1124,20 +1124,28 @@
         innerGroup.add(model);
       }
 
-      // 1. Try jsDelivr Global CDN
+      // 1. Load exact original Hi3D-moon.glb from local repository / GitHub Pages
       loader.load(
-        'https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/moon-jsdelivr.glb',
+        'Hi3D-moon.glb',
         applyGltfModel,
         undefined,
         function (err1) {
-          console.warn('jsDelivr failed, trying GitHub Releases...', err1);
-          // 2. Fallback to GitHub Releases direct URL
+          console.warn('Relative path failed, trying direct GitHub URL...', err1);
+          // 2. Fallback to GitHub Releases direct original Hi3D-moon.glb
           loader.load(
             'https://github.com/jnyang6270-art/moon/releases/download/v1.0.0/Hi3D-moon.glb',
             applyGltfModel,
             undefined,
             function (err2) {
-              console.warn('Using procedural moon fallback', err2);
+              // 3. Fallback to GitHub Pages absolute URL
+              loader.load(
+                'https://jnyang6270-art.github.io/moon/Hi3D-moon.glb',
+                applyGltfModel,
+                undefined,
+                function (err3) {
+                  console.warn('Using procedural moon fallback', err3);
+                }
+              );
             }
           );
         }
