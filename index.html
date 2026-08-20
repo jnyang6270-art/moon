@@ -1,116 +1,1194 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Model Preview - Hi3D Moon</title>
-  <!-- Google Model Viewer -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <meta name="theme-color" content="#4a8192">
+  <title>WildCrumb — Taste The Sky</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Passion+One:wght@400&family=Reenie+Beanie&display=swap" rel="stylesheet">
+
+  <!-- Three.js + GLTFLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+
   <style>
+    @font-face {
+      font-family: 'Suisse Fallback';
+      src: local('Inter Medium'), local('Inter-Medium');
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Suisse Fallback';
+      src: local('Inter SemiBold'), local('Inter-SemiBold');
+      font-weight: 600;
+      font-display: swap;
+    }
+
+    :root {
+      --desktop-scale: 1;
+      --header-scale: 1;
+      --brand-edge-margin: 45px;
+      --social-edge-margin: 38.6204px;
+      --design-width: 1726;
+      --design-height: 1195;
+      --tablet-layout: 0;
+      --mobile-layout: 0;
+      --hero-background-crop: 0.115;
+      --final-background-crop: 0.303;
+      --sky-blue: #4a8192;
+      --section-cookie-radius: 250px;
+      --mobile-callouts-top: 550px;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none;
     }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
+
+    html, body {
+      width: 100%;
+      min-height: 320vh;
+      background: var(--sky-blue);
+      color: #ffffff;
+      font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
+      overflow-x: hidden;
+      overscroll-behavior: none;
+      scrollbar-width: none;
+    }
+
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+
+    .experience {
+      position: relative;
+      width: 100%;
+      height: 320vh;
+      pointer-events: none;
+    }
+
+    /* Fixed Viewport Container */
+    .viewport {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
       height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      pointer-events: auto;
+    }
+
+    /* Background Scene */
+    .scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .scene .landscape {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 105vw;
+      height: auto;
+      min-height: 125vh;
+      transform: translate3d(-50%, 0, 0);
+      object-fit: cover;
+      will-change: transform;
+      pointer-events: none;
+    }
+
+    @media (max-width: 1060px) and (max-aspect-ratio: 49/64) {
+      .scene .landscape {
+        height: 145dvh;
+        width: auto;
+        min-width: 105vw;
+        object-fit: cover;
+      }
+    }
+
+    .scene-vignette {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(6, 40, 52, 0.035), transparent 32%, rgba(18, 25, 9, 0.025));
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Stage Canvas System (1726 x 1195) */
+    .stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1726px;
+      height: 1195px;
+      transform: translate(-50%, -50%) scale(var(--desktop-scale));
+      transform-origin: center center;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 220ms ease-out;
+      pointer-events: none;
+    }
+
+    .stage.is-ready {
+      opacity: 1;
+    }
+
+    #cookie-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Header Nav */
+    .scene-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 220ms ease-out;
+      pointer-events: auto;
+    }
+
+    .scene-nav.is-ready {
+      opacity: 1;
+    }
+
+    .brand-link {
+      position: absolute;
+      top: 36px;
+      left: var(--brand-edge-margin);
+      width: 167px;
+      height: 35.2px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #ffffff;
+      transform-origin: top left;
+      transform: scale(var(--header-scale));
+      transition: transform 0.2s ease;
+    }
+
+    .brand-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .center-nav {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%) scale(var(--header-scale));
+      transform-origin: top center;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: 47px;
+    }
+
+    .nav-pill {
+      height: 47px;
+      border-radius: 14px;
+      padding: 0 18px;
+      font-size: 13.3846px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      background: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10.7px);
+      -webkit-backdrop-filter: blur(10.7px);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .nav-pill:hover {
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .nav-pill.shop-pill {
+      background: #0b0b0b;
+      width: 92.7932px;
+      gap: 10px;
+      justify-content: flex-start;
+      padding-left: 16px;
+    }
+
+    .nav-pill.shop-pill:hover {
+      background: #222222;
+    }
+
+    .nav-pill.cookies-pill { width: 86px; }
+    .nav-pill.about-pill { width: 92px; }
+    .nav-pill.ingredients-pill { width: 104px; }
+
+    .right-cluster {
+      position: absolute;
+      top: 30px;
+      right: var(--social-edge-margin);
+      transform: scale(var(--header-scale));
+      transform-origin: top right;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: 47px;
+    }
+
+    .social-tray {
+      width: 138.3796px;
+      height: 47px;
+      border-radius: 14px;
+      background: rgba(11, 11, 11, 0.1);
+      backdrop-filter: blur(15.7px);
+      -webkit-backdrop-filter: blur(15.7px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .social-link {
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.85;
+      transition: opacity 0.2s, transform 0.2s;
+      text-decoration: none;
+    }
+
+    .social-link:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .cart-btn {
+      width: 47px;
+      height: 47px;
+      border-radius: 14px;
+      background: #0b0b0b;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ffffff;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .cart-btn:hover {
+      background: #222222;
+      transform: scale(1.04);
+    }
+
+    /* Hamburger & Mobile Menu */
+    .hamburger-btn {
+      display: none;
+      position: absolute;
+      top: 25px;
+      right: 20px;
+      width: 47px;
+      height: 47px;
+      border-radius: 14px;
+      background: #0b0b0b;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .hamburger-line {
+      width: 17px;
+      height: 2px;
+      background: #ffffff;
+      border-radius: 1px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .hamburger-btn.is-active .line-1 {
+      transform: translateY(6px) rotate(45deg);
+    }
+    .hamburger-btn.is-active .line-2 {
+      opacity: 0;
+    }
+    .hamburger-btn.is-active .line-3 {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    .mobile-menu-panel {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: min(360px, calc(100vw - 40px));
+      border-radius: 24px;
+      background: rgba(22, 59, 70, 0.48);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 60px rgba(7, 24, 30, 0.22);
+      padding: 20px;
       display: flex;
       flex-direction: column;
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
+      transition: opacity 200ms ease, transform 200ms ease;
+      z-index: 99;
     }
-    header {
-      padding: 1rem 1.5rem;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    .mobile-menu-panel.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .mobile-pills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mobile-bottom-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
+      gap: 10px;
     }
-    h1 {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-    .badge {
-      font-size: 0.75rem;
-      background: #3b82f6;
-      color: white;
-      padding: 0.25rem 0.5rem;
-      border-radius: 9999px;
-      margin-left: 0.5rem;
-    }
-    .model-container {
-      flex: 1;
-      width: 100%;
-      height: calc(100vh - 65px);
-      position: relative;
-    }
-    model-viewer {
-      width: 100%;
-      height: 100%;
-      --poster-color: transparent;
-      background-color: #0b0f19;
-    }
-    .controls {
+
+    /* Titles */
+    .title-container {
       position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      padding: 10px 18px;
-      border-radius: 30px;
-      font-size: 0.85rem;
-      color: #94a3b8;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      white-space: nowrap;
+      perspective: 800px;
+      pointer-events: none;
+    }
+
+    .hero-title {
+      top: 167px;
+      left: 271px;
+      width: 1184px;
+      height: 242px;
+      font-family: 'Passion One', Impact, sans-serif;
+      font-size: 255px;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      text-align: center;
+      z-index: 4;
+    }
+
+    .diff-title {
+      top: 937px;
+      left: 364px;
+      width: 998px;
+      height: 192px;
+      font-family: 'Passion One', Impact, sans-serif;
+      font-size: 202px;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      text-align: center;
+      z-index: 4;
+    }
+
+    .split-char {
+      display: inline-block;
+      transform-origin: 50% 70%;
+      will-change: transform, opacity;
+    }
+
+    /* Ingredient Callouts */
+    .callouts-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .callout-item {
+      position: absolute;
+      height: 81px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 6px;
+      pointer-events: auto;
     }
-    .btn {
-      background: #2563eb;
-      color: white;
-      text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      transition: background 0.2s;
-      border: none;
-      cursor: pointer;
+
+    .callout-label {
+      height: 81px;
+      border-radius: 24px;
+      background: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(35.8px);
+      -webkit-backdrop-filter: blur(35.8px);
+      font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      padding: 0 26px;
+      white-space: nowrap;
+      will-change: transform, opacity;
     }
-    .btn:hover {
-      background: #1d4ed8;
+
+    .callout-tile {
+      width: 81px;
+      height: 81px;
+      border-radius: 24.1277px;
+      background: #0b0b0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      will-change: transform, opacity;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Callout absolute placements */
+    .callout-0 {
+      right: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% - (var(--section-cookie-radius) * 0.84) - 40.5px);
+    }
+
+    .callout-1 {
+      left: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% - (var(--section-cookie-radius) * 0.84) - 40.5px);
+    }
+
+    .callout-2 {
+      right: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% + (var(--section-cookie-radius) * 0.84) - 40.5px);
+    }
+
+    .callout-3 {
+      left: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% + (var(--section-cookie-radius) * 0.84) - 40.5px);
+    }
+
+    .callout-0 .callout-label { width: 275px; }
+    .callout-1 .callout-label { width: 288px; }
+    .callout-2 .callout-label { width: 293px; }
+    .callout-3 .callout-label { width: 238px; }
+
+    /* Responsive Media Queries */
+    @media (max-width: 1060px) {
+      :root {
+        --tablet-layout: 1;
+      }
+      .center-nav, .right-cluster {
+        display: none !important;
+      }
+      .hamburger-btn {
+        display: flex;
+      }
+      .hero-title {
+        font-size: 280px;
+        top: 80px;
+        left: 163px;
+        width: 1400px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      :root {
+        --mobile-layout: 1;
+      }
+      .brand-link {
+        top: 25px;
+        left: 20px;
+        transform: scale(0.75);
+      }
+      .hero-title {
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 530px !important;
+        font-size: 102px !important;
+      }
+      .diff-title {
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 530px !important;
+        font-size: 92px !important;
+      }
+      .callouts-layer {
+        position: absolute;
+        top: var(--mobile-callouts-top);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .callout-item {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        height: 72px;
+        width: 100%;
+      }
+      .callout-label {
+        height: 72px;
+        font-size: 15px;
+        padding: 0 12px;
+        border-radius: 21px;
+        width: 100% !important;
+        white-space: normal;
+        line-height: 1.2;
+        text-align: center;
+        justify-content: center;
+      }
+      .callout-tile {
+        width: 72px;
+        height: 72px;
+        border-radius: 21px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <span style="font-weight: bold;">Hi3D Moon</span>
-      <span class="badge">GLB 3D Model</span>
-    </div>
-    <a href="Hi3D-moon.glb" download class="btn">下載模型 (.glb)</a>
-  </header>
 
-  <div class="model-container">
-    <model-viewer
-      src="Hi3D-moon.glb"
-      alt="Hi3D Moon 3D model"
-      auto-rotate
-      camera-controls
-      touch-action="pan-y"
-      shadow-intensity="1"
-      exposure="1"
-      ar>
-    </model-viewer>
+  <!-- Scroll container of 320vh -->
+  <main class="experience">
+    <div class="viewport">
+      <!-- 1. Background scene & parallax -->
+      <div class="scene">
+        <img class="landscape" id="landscape-img" src="https://www.image2url.com/r2/default/files/1787246255644-5484b26c-9815-4ea2-89a5-3c44a45fa086.webp" alt="Landscape">
+        <div class="scene-vignette"></div>
+      </div>
 
-    <div class="controls">
-      <span>🖱️ 拖曳旋轉 / 滾輪縮放</span>
+      <!-- 2. Header UI -->
+      <nav class="scene-nav" id="scene-nav">
+        <!-- Brand Wordmark -->
+        <a href="#top" class="brand-link" data-scroll="top" aria-label="WildCrumb Home">
+          <svg class="brand-svg" viewBox="0 0 167 35.2" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="28" font-family="'Reenie Beanie', cursive, 'Brush Script MT', sans-serif" font-size="36" font-weight="700" fill="#ffffff" letter-spacing="1">WildCrumb</text>
+          </svg>
+        </a>
+
+        <!-- Desktop Center Nav Pills -->
+        <div class="center-nav">
+          <button class="nav-pill shop-pill">
+            <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+            </svg>
+            <span>Shop</span>
+          </button>
+          <button class="nav-pill cookies-pill" data-scroll="top">Cookies</button>
+          <button class="nav-pill about-pill">About Us</button>
+          <button class="nav-pill ingredients-pill" data-scroll="bottom">Ingredients</button>
+        </div>
+
+        <!-- Desktop Right Social & Cart -->
+        <div class="right-cluster">
+          <div class="social-tray">
+            <!-- Instagram -->
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" class="social-link" aria-label="Instagram">
+              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <!-- Threads -->
+            <a href="https://threads.net" target="_blank" rel="noreferrer" class="social-link" aria-label="Threads">
+              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.66 14.15c-.64.88-1.58 1.4-2.73 1.49-1.39.11-2.61-.34-3.52-1.3-.92-.97-1.37-2.31-1.3-3.87.08-1.74.77-3.12 1.99-3.99 1.13-.81 2.57-1.16 4.16-1.01 1.42.13 2.58.67 3.36 1.57.48.56.81 1.25.96 2.05h-1.92c-.14-.49-.39-.9-.74-1.22-.52-.48-1.27-.74-2.17-.75-1.12-.02-2.07.31-2.75.95-.69.65-1.06 1.59-1.07 2.72-.02 1.18.33 2.12.99 2.73.64.59 1.48.87 2.45.81.93-.06 1.63-.44 2.03-1.12.23-.39.34-.84.34-1.32h-2.37v-1.64h4.16v.63c0 .87-.19 1.7-.56 2.42z"/>
+              </svg>
+            </a>
+            <!-- X -->
+            <a href="https://x.com" target="_blank" rel="noreferrer" class="social-link" aria-label="X">
+              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+          </div>
+
+          <button class="cart-btn" aria-label="Shopping Cart">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile / Tablet Hamburger -->
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu" aria-expanded="false">
+          <span class="hamburger-line line-1"></span>
+          <span class="hamburger-line line-2"></span>
+          <span class="hamburger-line line-3"></span>
+        </button>
+
+        <div class="mobile-menu-panel" id="mobile-menu-panel" inert>
+          <div class="mobile-pills-grid">
+            <button class="nav-pill shop-pill" style="width:100%;">
+              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+              </svg>
+              <span>Shop</span>
+            </button>
+            <button class="nav-pill cookies-pill" data-scroll="top" style="width:100%;">Cookies</button>
+            <button class="nav-pill about-pill" style="width:100%;">About Us</button>
+            <button class="nav-pill ingredients-pill" data-scroll="bottom" style="width:100%;">Ingredients</button>
+          </div>
+          <div class="mobile-bottom-row">
+            <div class="social-tray" style="flex:1;">
+              <a href="https://instagram.com" target="_blank" rel="noreferrer" class="social-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path></svg>
+              </a>
+              <a href="https://threads.net" target="_blank" rel="noreferrer" class="social-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+              </a>
+              <a href="https://x.com" target="_blank" rel="noreferrer" class="social-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+            </div>
+            <button class="cart-btn" aria-label="Shopping Cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- 3. Stage Container (1726 x 1195) -->
+      <div class="stage" id="stage">
+        <!-- Three.js Canvas -->
+        <canvas id="cookie-canvas"></canvas>
+
+        <!-- Hero Title -->
+        <h1 class="title-container hero-title" id="hero-title">Taste The Sky</h1>
+
+        <!-- Section 2 Title -->
+        <h2 class="title-container diff-title" id="diff-title">The Difference</h2>
+
+        <!-- Callouts Layer -->
+        <div class="callouts-layer" id="callouts-layer">
+          <!-- Callout 0: Top-Left (label, icon) -->
+          <div class="callout-item callout-0" data-order="0">
+            <div class="callout-label" style="transform-origin: right center;">70% Single-Origin Dark</div>
+            <div class="callout-tile">
+              <!-- Chocolate Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="3" y1="15" x2="21" y2="15"></line>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Callout 1: Top-Right (icon, label) -->
+          <div class="callout-item callout-1" data-order="1">
+            <div class="callout-tile">
+              <!-- Leaf Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+              </svg>
+            </div>
+            <div class="callout-label" style="transform-origin: left center;">Organic Grass-fed Butter</div>
+          </div>
+
+          <!-- Callout 2: Bottom-Left (label, icon) -->
+          <div class="callout-item callout-2" data-order="2">
+            <div class="callout-label" style="transform-origin: right center;">Organic Maple &amp; Coconut</div>
+            <div class="callout-tile">
+              <!-- Egg Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22c4.97 0 9-4.03 9-9 0-4.97-4.03-11-9-11S3 8.03 3 13c0 4.97 4.03 9 9 9z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Callout 3: Bottom-Right (icon, label) -->
+          <div class="callout-item callout-3" data-order="3">
+            <div class="callout-tile">
+              <!-- Flash Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <div class="callout-label" style="transform-origin: left center;">Light, Aerated Snap</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- 1. Easing helpers ---
+      function clamp(val, min = 0, max = 1) {
+        return Math.max(min, Math.min(max, val));
+      }
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+      function easeOutBack(t) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      }
+
+      // --- 2. DOM Split-text setup ---
+      function splitTextToSpans(element) {
+        const text = element.textContent.trim();
+        element.innerHTML = '';
+        const spans = [];
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const span = document.createElement('span');
+          span.className = 'split-char';
+          if (char === ' ') {
+            span.innerHTML = '&nbsp;';
+          } else {
+            span.textContent = char;
+          }
+          element.appendChild(span);
+          spans.push(span);
+        }
+        return spans;
+      }
+
+      const heroTitleEl = document.getElementById('hero-title');
+      const diffTitleEl = document.getElementById('diff-title');
+      const heroSpans = splitTextToSpans(heroTitleEl);
+      const diffSpans = splitTextToSpans(diffTitleEl);
+
+      const calloutEls = Array.from(document.querySelectorAll('.callout-item'));
+      const calloutData = calloutEls.map(el => {
+        const order = parseInt(el.getAttribute('data-order'), 10);
+        const tile = el.querySelector('.callout-tile');
+        const label = el.querySelector('.callout-label');
+        return { el, order, tile, label };
+      });
+
+      // --- 3. Stage & Layout calculations ---
+      const stageEl = document.getElementById('stage');
+      const sceneNavEl = document.getElementById('scene-nav');
+      const landscapeImg = document.getElementById('landscape-img');
+
+      let layoutState = {
+        w: window.innerWidth,
+        h: window.innerHeight,
+        scale: 1,
+        headerScale: 1,
+        isTablet: false,
+        isMobile: false,
+        heroY: 0,
+        sectionY: 0,
+        heroScale: 1,
+        sectionScale: 1,
+        bgHeight: 1280
+      };
+
+      function updateLayout() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const isTablet = w <= 1060;
+        const isMobile = w <= 620;
+
+        let scale = isMobile ? Math.max(w / 1726, h / 1195) : Math.min(w / 1726, h / 1195);
+        let headerScale = isTablet ? clamp(w / 900, 0.82, 1) : Math.min(1, w / 1726);
+
+        document.documentElement.style.setProperty('--desktop-scale', scale);
+        document.documentElement.style.setProperty('--header-scale', headerScale);
+
+        // Calculate cookie positions in design stage coordinates
+        const targetDiameter = 532; // base diameter
+        let heroScale = 1;
+        let sectionScale = 1;
+        let heroY = 0;
+        let sectionY = 0;
+
+        if (isMobile) {
+          const heroD = clamp(w * 0.72, 250, 310);
+          const secD = clamp(w * 0.67, 235, 300);
+          heroScale = heroD / targetDiameter;
+          sectionScale = secD / targetDiameter;
+          heroY = 50;
+          sectionY = (h * 0.445 - h / 2) / scale;
+          document.documentElement.style.setProperty('--mobile-callouts-top', `${(1195 / 2 + sectionY + (secD / scale) * 0.5 + 20)}px`);
+        } else if (isTablet) {
+          const heroD = clamp(w * 0.38, 260, 340);
+          heroScale = heroD / targetDiameter;
+          sectionScale = heroScale;
+          heroY = 20;
+          sectionY = 0;
+        } else {
+          // Desktop Corridor: between hero-title bottom (409) and "The Difference" top (937)
+          const corridorCenter = (409 + 937) / 2; // 673
+          heroY = 1195 / 2 - corridorCenter; // relative to stage center (0,0) -> ~ -75.5
+          sectionY = 0;
+          heroScale = 1;
+          sectionScale = 1;
+        }
+
+        const secCookieRadius = (532 * sectionScale * 0.96) / 2;
+        document.documentElement.style.setProperty('--section-cookie-radius', `${secCookieRadius}px`);
+
+        layoutState = {
+          w, h, scale, headerScale, isTablet, isMobile,
+          heroY, sectionY, heroScale, sectionScale,
+          bgHeight: landscapeImg.clientHeight || 1280
+        };
+      }
+
+      window.addEventListener('resize', updateLayout);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateLayout);
+      }
+      updateLayout();
+
+      // --- 4. Three.js Setup ---
+      const canvas = document.getElementById('cookie-canvas');
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.OrthographicCamera(-863, 863, 597.5, -597.5, 0.1, 4000);
+      camera.position.z = 2000;
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance'
+      });
+      renderer.setSize(1726, 1195, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setClearColor(0x000000, 0);
+
+      // Lighting
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x704019, 0.82);
+      scene.add(hemiLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
+      keyLight.position.set(-450, 650, 1200);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0xffb56b, 0.24);
+      rimLight.position.set(600, -100, 500);
+      scene.add(rimLight);
+
+      // Groups
+      const cookieGroup = new THREE.Group();
+      const innerGroup = new THREE.Group();
+      cookieGroup.add(innerGroup);
+      scene.add(cookieGroup);
+
+      let isGlbLoaded = false;
+      const loader = new THREE.GLTFLoader();
+      const modelUrl = 'https://github.com/jnyang6270-art/moon/releases/download/v1.0.0/Hi3D-moon.glb';
+
+      loader.load(
+        modelUrl,
+        function (gltf) {
+          const model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+
+          model.position.sub(center);
+
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const baseScale = 532 / (maxDim || 1);
+          innerGroup.scale.set(baseScale, baseScale, baseScale);
+
+          model.traverse(function (child) {
+            if (child.isMesh && child.material) {
+              child.material.metalness = 0;
+              child.material.roughness = Math.max(0.72, child.material.roughness || 0.8);
+              if (child.material.map) {
+                child.material.map.colorSpace = THREE.SRGBColorSpace;
+                child.material.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+              }
+            }
+          });
+
+          innerGroup.add(model);
+          isGlbLoaded = true;
+          checkAllReady();
+        },
+        undefined,
+        function (err) {
+          console.warn('GLB Load Error, falling back to sphere preview', err);
+          // Fallback photoreal-style moon sphere
+          const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
+          const sphereMat = new THREE.MeshStandardMaterial({
+            color: 0xeae5dc,
+            roughness: 0.88,
+            metalness: 0.05
+          });
+          const sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+          innerGroup.add(sphereMesh);
+          isGlbLoaded = true;
+          checkAllReady();
+        }
+      );
+
+      // --- 5. Readiness Gate ---
+      let isReady = false;
+      let introStartTime = null;
+
+      function checkAllReady() {
+        Promise.all([
+          document.fonts.ready,
+          new Promise((resolve) => {
+            if (landscapeImg.complete) resolve();
+            else {
+              landscapeImg.onload = resolve;
+              landscapeImg.onerror = resolve;
+            }
+          })
+        ]).then(() => {
+          if (!isReady && isGlbLoaded) {
+            isReady = true;
+            stageEl.classList.add('is-ready');
+            sceneNavEl.classList.add('is-ready');
+            introStartTime = performance.now() + 360;
+          }
+        });
+      }
+
+      // Initial check in case fonts & images load very fast
+      checkAllReady();
+
+      // --- 6. Scroll Tracking & Smooth Interpolation ---
+      let targetScroll = 0;
+      let smoothScroll = 0;
+
+      window.addEventListener('scroll', function () {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        targetScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
+      }, { passive: true });
+
+      // Smooth scroll navigation
+      document.querySelectorAll('[data-scroll]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = btn.getAttribute('data-scroll');
+          if (target === 'top') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else if (target === 'bottom') {
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+          }
+          // Close mobile menu if open
+          if (mobileMenuOpen) toggleMobileMenu(false);
+        });
+      });
+
+      // Mobile Menu logic
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const mobileMenuPanel = document.getElementById('mobile-menu-panel');
+      let mobileMenuOpen = false;
+
+      function toggleMobileMenu(open) {
+        mobileMenuOpen = open;
+        hamburgerBtn.classList.toggle('is-active', open);
+        hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        mobileMenuPanel.classList.toggle('is-open', open);
+        if (open) {
+          mobileMenuPanel.removeAttribute('inert');
+          const firstBtn = mobileMenuPanel.querySelector('button, a');
+          if (firstBtn) firstBtn.focus();
+        } else {
+          mobileMenuPanel.setAttribute('inert', '');
+        }
+      }
+
+      hamburgerBtn.addEventListener('click', () => toggleMobileMenu(!mobileMenuOpen));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileMenuOpen) {
+          toggleMobileMenu(false);
+          hamburgerBtn.focus();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (mobileMenuOpen && !mobileMenuPanel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+          toggleMobileMenu(false);
+        }
+      });
+
+      // --- 7. Master Animation & Render Loop ---
+      let lastTime = performance.now();
+      let animFrameId = null;
+
+      function tick(now) {
+        const dt = clamp(now - lastTime, 0, 64);
+        lastTime = now;
+
+        // Smooth scroll decay
+        const scrollFactor = 1 - Math.exp(-dt / 220);
+        smoothScroll += (targetScroll - smoothScroll) * scrollFactor;
+        if (Math.abs(targetScroll - smoothScroll) < 0.00008) {
+          smoothScroll = targetScroll;
+        }
+
+        // Section transition: scroll 8% -> 80%
+        const rawTrans = clamp((smoothScroll - 0.08) / 0.72);
+        const transition = easeInOutCubic(rawTrans);
+
+        // A. Background Parallax
+        const heroCrop = -layoutState.bgHeight * 0.115;
+        const finalCrop = -layoutState.bgHeight * 0.303;
+        const currentBgY = lerp(heroCrop, finalCrop, transition);
+        landscapeImg.style.transform = `translate3d(-50%, ${currentBgY}px, 0)`;
+
+        // B. Intro timing
+        let introProgress = 0;
+        if (introStartTime !== null) {
+          introProgress = clamp((now - introStartTime) / 1350);
+        }
+
+        // C. Hero Title Letter Animations
+        const nHero = heroSpans.length;
+        heroSpans.forEach((span, i) => {
+          const dir = i % 2 === 0 ? -1 : 1;
+
+          // Enter animation (intro)
+          const enterP = easeOutCubic(clamp((introProgress - i * 0.024) / 0.63));
+          const initX = (1 - enterP) * (dir * 52 + 80);
+          const initY = (1 - enterP) * -310;
+          const initRotX = (1 - enterP) * 74;
+          const initRotZ = (1 - enterP) * dir * 9;
+          let opacity = enterP;
+
+          // Leave animation (scroll scatter)
+          const leaveP = easeInOutCubic(clamp((smoothScroll - 0.08 - i * 0.019) / 0.29));
+          const scatterX = leaveP * ((i - (nHero - 1) / 2) * 39 + dir * 28);
+          const scatterY = -430 * Math.pow(leaveP, 1.8);
+          const scatterRotX = -leaveP * 24;
+          const scatterRotZ = leaveP * dir * (17 + i * 1.7);
+
+          const fadeOut = 1 - clamp((leaveP - 0.58) / 0.42);
+          opacity *= fadeOut;
+
+          const finalX = initX + scatterX;
+          const finalY = initY + scatterY;
+          const finalRotX = initRotX + scatterRotX;
+          const finalRotZ = initRotZ + scatterRotZ;
+
+          span.style.transform = `translate3d(${finalX}px, ${finalY}px, 0) rotateX(${finalRotX}deg) rotateZ(${finalRotZ}deg)`;
+          span.style.opacity = opacity;
+        });
+
+        // D. "The Difference" Title Letter Animations
+        const nDiff = diffSpans.length;
+        diffSpans.forEach((span, i) => {
+          const enterP = easeOutBack(clamp((smoothScroll - 0.27 - i * 0.006) / 0.22));
+          const startY = (1 - enterP) * 250;
+          const startX = (1 - enterP) * ((i - nDiff / 2) * 9);
+          const rotX = (1 - enterP) * -66;
+          const rotZ = (i % 2 === 0 ? -1 : 1) * 5 * (1 - enterP);
+
+          const opacity = clamp((smoothScroll - 0.27 - i * 0.005) / 0.13);
+
+          span.style.transform = `translate3d(${startX}px, ${startY}px, 0) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+          span.style.opacity = opacity;
+        });
+
+        // E. Ingredient Callouts Animations
+        calloutData.forEach(({ order, tile, label }) => {
+          const tileP = easeOutBack(clamp((smoothScroll - 0.63 - order * 0.026) / 0.13));
+          const tileRot = (1 - tileP) * 18;
+          tile.style.transform = `scale(${tileP}) rotate(${tileRot}deg)`;
+          tile.style.opacity = tileP;
+
+          const labelP = easeOutCubic(clamp((smoothScroll - 0.74 - order * 0.025) / 0.17));
+          label.style.transform = `scaleX(${labelP})`;
+          label.style.opacity = labelP;
+        });
+
+        // F. Cookie 3D Transformation
+        const cookieIntro = easeOutBack(clamp((introProgress - 0.22) / 0.72));
+
+        // Position
+        const targetHeroX = 0;
+        const targetHeroY = layoutState.heroY;
+        const curHeroX = lerp(155, targetHeroX, cookieIntro);
+        const curHeroY = lerp(430, targetHeroY, cookieIntro);
+
+        let finalCookieY = lerp(curHeroY, layoutState.sectionY, transition) + Math.sin(transition * Math.PI) * 9;
+        let finalCookieX = curHeroX + Math.sin(transition * Math.PI) * -20;
+
+        // Scale
+        const curHeroScale = lerp(0.18, layoutState.heroScale, cookieIntro);
+        const finalCookieScale = lerp(curHeroScale, layoutState.sectionScale * 0.96, transition);
+
+        cookieGroup.position.set(finalCookieX, -finalCookieY, 0); // note inverted Y in Three.js coords
+        cookieGroup.scale.set(finalCookieScale, finalCookieScale, finalCookieScale);
+
+        // Rotation: Y axis flip + Z tilt
+        cookieGroup.rotation.y = transition * Math.PI;
+        cookieGroup.rotation.z = lerp(-0.09, 0.19, transition);
+        cookieGroup.rotation.x = Math.sin(now * 0.001) * 0.04; // subtle floating breathing
+
+        // Render Three.js scene
+        renderer.render(scene, camera);
+
+        animFrameId = requestAnimationFrame(tick);
+      }
+
+      animFrameId = requestAnimationFrame(tick);
+
+      window.addEventListener('pagehide', () => {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
+      });
+
+    })();
+  </script>
 </body>
 </html>
