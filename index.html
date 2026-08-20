@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#4a8192">
+  <meta name="theme-color" content="#0d172e">
   <title>WildCrumb — Taste The Sky</title>
 
   <!-- Google Fonts -->
@@ -40,7 +40,7 @@
       --mobile-layout: 0;
       --hero-background-crop: 0.115;
       --final-background-crop: 0.303;
-      --sky-blue: #4a8192;
+      --sky-blue: #0d172e;
       --section-cookie-radius: 250px;
       --mobile-callouts-top: 550px;
     }
@@ -55,7 +55,7 @@
     html, body {
       width: 100%;
       min-height: 320vh;
-      background: var(--sky-blue);
+      background: #0d172e;
       color: #ffffff;
       font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
       overflow-x: hidden;
@@ -677,7 +677,7 @@
     <div class="viewport">
       <!-- 1. Background scene & parallax -->
       <div class="scene">
-        <img class="landscape" id="landscape-img" src="https://www.image2url.com/r2/default/files/1787246255644-5484b26c-9815-4ea2-89a5-3c44a45fa086.webp" alt="Landscape">
+        <img class="landscape" id="landscape-img" src="background.jpg" alt="Starry Sky Sea Landscape">
         <div class="scene-vignette"></div>
         <div class="ambient-glow"></div>
       </div>
@@ -1051,7 +1051,7 @@
 
       // Procedural fallback Moon so animation is 100% INSTANT without waiting 58MB download
       const textureLoader = new THREE.TextureLoader();
-      const moonTex = textureLoader.load('https://jnyang6270-art.github.io/moon/texture_1.jpg');
+      const moonTex = textureLoader.load('texture_1.jpg');
       moonTex.colorSpace = THREE.SRGBColorSpace;
 
       const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
@@ -1070,7 +1070,7 @@
 
       // Async GLB model loader for high-poly details
       const loader = new THREE.GLTFLoader();
-      const modelUrl = 'https://github.com/jnyang6270-art/moon/releases/download/v1.0.0/Hi3D-moon.glb';
+      const modelUrl = 'Hi3D-moon.glb';
 
       loader.load(
         modelUrl,
