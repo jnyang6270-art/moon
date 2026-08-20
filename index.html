@@ -683,7 +683,7 @@
     <div class="viewport">
       <!-- 1. Background scene & parallax -->
       <div class="scene">
-        <img class="landscape" id="landscape-img" src="https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/background.jpg" alt="Starry Sky Sea Landscape">
+        <img class="landscape" id="landscape-img" src="background.jpg" alt="Starry Sky Sea Landscape">
         <div class="scene-vignette"></div>
         <div class="ambient-glow"></div>
       </div>
@@ -1055,29 +1055,15 @@
       cookieGroup.add(innerGroup);
       scene.add(cookieGroup);
 
-      // Procedural in-memory fallback Moon (0 external requests, 0% chance of 404)
-      const canvasTex = document.createElement('canvas');
-      canvasTex.width = 512;
-      canvasTex.height = 512;
-      const ctx = canvasTex.getContext('2d');
-      ctx.fillStyle = '#cfc6b8';
-      ctx.fillRect(0, 0, 512, 512);
-      for (let i = 0; i < 40; i++) {
-        const cx = Math.random() * 512;
-        const cy = Math.random() * 512;
-        const cr = Math.random() * 30 + 5;
-        ctx.fillStyle = 'rgba(110, 100, 85, 0.18)';
-        ctx.beginPath();
-        ctx.arc(cx, cy, cr, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      const proceduralTex = new THREE.CanvasTexture(canvasTex);
-      proceduralTex.colorSpace = THREE.SRGBColorSpace;
+      // High-resolution real Moon texture extracted from Hi3D-moon.glb
+      const textureLoader = new THREE.TextureLoader();
+      const moonTex = textureLoader.load('texture_1.jpg');
+      moonTex.colorSpace = THREE.SRGBColorSpace;
 
       const sphereGeo = new THREE.SphereGeometry(266, 64, 64);
       const sphereMat = new THREE.MeshStandardMaterial({
-        map: proceduralTex,
-        roughness: 0.85,
+        map: moonTex,
+        roughness: 0.82,
         metalness: 0.05
       });
       const fallbackMesh = new THREE.Mesh(sphereGeo, sphereMat);
