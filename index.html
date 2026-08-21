@@ -47,8 +47,7 @@
       --hero-background-crop: 0.115;
       --final-background-crop: 0.303;
       --sky-blue: #0d172e;
-      --section-cookie-radius: 250px;
-      --mobile-callouts-top: 550px;
+      --section-cookie-radius: 266px;
     }
 
     * {
@@ -565,40 +564,6 @@
         width: 90% !important;
         font-size: 52px !important;
       }
-      .callouts-layer {
-        position: absolute;
-        top: var(--mobile-callouts-top);
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-      .callout-item {
-        position: relative !important;
-        top: auto !important;
-        left: auto !important;
-        right: auto !important;
-        height: 72px;
-        width: 100%;
-      }
-      .callout-label {
-        height: 72px;
-        font-size: 15px;
-        padding: 0 12px;
-        border-radius: 21px;
-        width: 100% !important;
-        white-space: normal;
-        line-height: 1.2;
-        text-align: center;
-        justify-content: center;
-      }
-      .callout-tile {
-        width: 72px;
-        height: 72px;
-        border-radius: 21px;
-      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -737,7 +702,6 @@
           sectionScale = secD / targetDiameter;
           heroY = 50;
           sectionY = (h * 0.445 - h / 2) / scale;
-          document.documentElement.style.setProperty('--mobile-callouts-top', `${(1195 / 2 + sectionY + (secD / scale) * 0.5 + 20)}px`);
         } else if (isTablet) {
           const heroD = clamp(w * 0.38, 260, 340);
           heroScale = heroD / targetDiameter;
