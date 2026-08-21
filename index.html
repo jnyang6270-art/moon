@@ -457,7 +457,21 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 10px;
+    /* Brand Text: 天時。地利。人和 */
+    .brand-text {
+      position: absolute;
+      top: 36px;
+      left: var(--brand-edge-margin);
+      font-family: 'Noto Serif TC', 'Songti TC', 'STSong', serif;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+      transform-origin: top left;
+      transform: scale(var(--header-scale));
+      pointer-events: none;
+      white-space: nowrap;
     }
 
     /* Titles */
@@ -469,30 +483,32 @@
     }
 
     .hero-title {
-      top: 167px;
-      left: 271px;
-      width: 1184px;
-      height: 242px;
+      top: 135px;
+      left: 171px;
+      width: 1384px;
+      height: 280px;
       font-family: 'Noto Serif TC', 'Songti TC', 'STSong', 'SimSun', serif;
       font-weight: 900;
-      font-size: 210px;
+      font-size: 270px;
       line-height: 0.95;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.4em;
+      text-indent: 0.4em;
       text-align: center;
       z-index: 4;
-      text-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
     }
 
     .diff-title {
-      top: 937px;
+      top: 960px;
       left: 264px;
       width: 1198px;
-      height: 192px;
+      height: 160px;
       font-family: 'Noto Serif TC', 'Songti TC', 'STSong', 'SimSun', serif;
-      font-weight: 900;
-      font-size: 140px;
+      font-weight: 700;
+      font-size: 96px;
       line-height: 0.95;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.22em;
+      text-indent: 0.22em;
       text-align: center;
       z-index: 4;
       text-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
@@ -597,17 +613,18 @@
       :root {
         --tablet-layout: 1;
       }
-      .center-nav, .right-cluster {
-        display: none !important;
-      }
-      .hamburger-btn {
-        display: flex;
-      }
       .hero-title {
-        font-size: 280px;
-        top: 80px;
-        left: 163px;
-        width: 1400px;
+        font-size: 240px;
+        top: 100px;
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 90%;
+      }
+      .diff-title {
+        font-size: 84px;
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 90%;
       }
     }
 
@@ -615,22 +632,27 @@
       :root {
         --mobile-layout: 1;
       }
-      .brand-link {
-        top: 25px;
+      .brand-text {
+        top: 22px;
         left: 20px;
-        transform: scale(0.75);
+        font-size: 13px;
+        letter-spacing: 0.2em;
       }
       .hero-title {
         left: 50% !important;
         transform: translateX(-50%);
-        width: 530px !important;
-        font-size: 102px !important;
+        width: 90% !important;
+        font-size: 110px !important;
+        letter-spacing: 0.3em !important;
+        text-indent: 0.3em !important;
       }
       .diff-title {
         left: 50% !important;
         transform: translateX(-50%);
-        width: 530px !important;
-        font-size: 92px !important;
+        width: 90% !important;
+        font-size: 48px !important;
+        letter-spacing: 0.12em !important;
+        text-indent: 0.12em !important;
       }
       .callouts-layer {
         position: absolute;
@@ -690,102 +712,8 @@
 
       <!-- 2. Header UI -->
       <nav class="scene-nav" id="scene-nav">
-        <!-- Brand Wordmark -->
-        <a href="#top" class="brand-link" data-scroll="top" aria-label="WildCrumb Home">
-          <svg class="brand-svg" viewBox="0 0 167 35.2" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <text x="0" y="28" font-family="'Reenie Beanie', cursive, 'Brush Script MT', sans-serif" font-size="36" font-weight="700" fill="#ffffff" letter-spacing="1">WildCrumb</text>
-          </svg>
-        </a>
-
-        <!-- Desktop Center Nav Pills -->
-        <div class="center-nav">
-          <button class="nav-pill shop-pill">
-            <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7" rx="2"></rect>
-              <rect x="14" y="3" width="7" height="7" rx="2"></rect>
-              <rect x="14" y="14" width="7" height="7" rx="2"></rect>
-              <rect x="3" y="14" width="7" height="7" rx="2"></rect>
-            </svg>
-            <span>Shop</span>
-          </button>
-          <button class="nav-pill cookies-pill" data-scroll="top">Cookies</button>
-          <button class="nav-pill about-pill">About Us</button>
-          <button class="nav-pill ingredients-pill" data-scroll="bottom">Ingredients</button>
-        </div>
-
-        <!-- Desktop Right Social & Cart -->
-        <div class="right-cluster">
-          <div class="social-tray">
-            <!-- Instagram -->
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" class="social-link" aria-label="Instagram">
-              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-            </a>
-            <!-- Threads -->
-            <a href="https://threads.net" target="_blank" rel="noreferrer" class="social-link" aria-label="Threads">
-              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.66 14.15c-.64.88-1.58 1.4-2.73 1.49-1.39.11-2.61-.34-3.52-1.3-.92-.97-1.37-2.31-1.3-3.87.08-1.74.77-3.12 1.99-3.99 1.13-.81 2.57-1.16 4.16-1.01 1.42.13 2.58.67 3.36 1.57.48.56.81 1.25.96 2.05h-1.92c-.14-.49-.39-.9-.74-1.22-.52-.48-1.27-.74-2.17-.75-1.12-.02-2.07.31-2.75.95-.69.65-1.06 1.59-1.07 2.72-.02 1.18.33 2.12.99 2.73.64.59 1.48.87 2.45.81.93-.06 1.63-.44 2.03-1.12.23-.39.34-.84.34-1.32h-2.37v-1.64h4.16v.63c0 .87-.19 1.7-.56 2.42z"/>
-              </svg>
-            </a>
-            <!-- X -->
-            <a href="https://x.com" target="_blank" rel="noreferrer" class="social-link" aria-label="X">
-              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-            </a>
-          </div>
-
-          <button class="cart-btn" aria-label="Shopping Cart">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Mobile / Tablet Hamburger -->
-        <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle Menu" aria-expanded="false">
-          <span class="hamburger-line line-1"></span>
-          <span class="hamburger-line line-2"></span>
-          <span class="hamburger-line line-3"></span>
-        </button>
-
-        <div class="mobile-menu-panel" id="mobile-menu-panel" inert>
-          <div class="mobile-pills-grid">
-            <button class="nav-pill shop-pill" style="width:100%;">
-              <svg width="14.8" height="14.8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7" rx="2"></rect>
-                <rect x="14" y="3" width="7" height="7" rx="2"></rect>
-                <rect x="14" y="14" width="7" height="7" rx="2"></rect>
-                <rect x="3" y="14" width="7" height="7" rx="2"></rect>
-              </svg>
-              <span>Shop</span>
-            </button>
-            <button class="nav-pill cookies-pill" data-scroll="top" style="width:100%;">Cookies</button>
-            <button class="nav-pill about-pill" style="width:100%;">About Us</button>
-            <button class="nav-pill ingredients-pill" data-scroll="bottom" style="width:100%;">Ingredients</button>
-          </div>
-          <div class="mobile-bottom-row">
-            <div class="social-tray" style="flex:1;">
-              <a href="https://instagram.com" target="_blank" rel="noreferrer" class="social-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path></svg>
-              </a>
-              <a href="https://threads.net" target="_blank" rel="noreferrer" class="social-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
-              </a>
-              <a href="https://x.com" target="_blank" rel="noreferrer" class="social-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              </a>
-            </div>
-            <button class="cart-btn" aria-label="Shopping Cart">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-            </button>
-          </div>
-        </div>
+        <!-- Brand Text: 天時。地利。人和 -->
+        <div class="brand-text">天時。地利。人和</div>
       </nav>
 
       <!-- 3. Stage Container (1726 x 1195) -->
@@ -793,10 +721,10 @@
         <!-- Three.js Canvas -->
         <canvas id="cookie-canvas"></canvas>
 
-        <!-- Hero Title -->
-        <h1 class="title-container hero-title" id="hero-title">三分</h1>
+        <!-- Hero Title: 三 分 (加大加粗) -->
+        <h1 class="title-container hero-title" id="hero-title">三 分</h1>
 
-        <!-- Section 2 Title -->
+        <!-- Section 2 Title: 你的解籤日記 -->
         <h2 class="title-container diff-title" id="diff-title">你的解籤日記</h2>
 
         <!-- Callouts Layer -->
@@ -850,22 +778,6 @@
             <div class="callout-label" style="transform-origin: left center;">Light, Aerated Snap</div>
           </div>
         </div>
-      </div>
-
-      <!-- 4. Floating Action / Animation Controls HUD -->
-      <div class="action-hud">
-        <button class="hud-btn" id="play-demo-btn" aria-label="Auto Play Animation">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          <span id="play-btn-text">自動播放 3D 動畫</span>
-        </button>
-        <button class="hud-btn scroll-hint" id="scroll-hint-btn">
-          <span>滾動探索</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 5v14M19 12l-7 7-7-7"/>
-          </svg>
-        </button>
       </div>
 
     </div>
@@ -1141,75 +1053,6 @@
           targetScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
         }
       }, { passive: true });
-
-      // Auto Demo Play Animation Button
-      const playDemoBtn = document.getElementById('play-demo-btn');
-      const playBtnText = document.getElementById('play-btn-text');
-      const scrollHintBtn = document.getElementById('scroll-hint-btn');
-
-      playDemoBtn.addEventListener('click', () => {
-        isAutoPlaying = !isAutoPlaying;
-        if (isAutoPlaying) {
-          playBtnText.textContent = '暫停動畫';
-          playDemoBtn.style.background = '#2563eb';
-        } else {
-          playBtnText.textContent = '自動播放 3D 動畫';
-          playDemoBtn.style.background = '';
-        }
-      });
-
-      scrollHintBtn.addEventListener('click', () => {
-        const nextScroll = smoothScroll > 0.5 ? 0 : document.documentElement.scrollHeight;
-        window.scrollTo({ top: nextScroll, behavior: 'smooth' });
-      });
-
-      // Smooth scroll navigation
-      document.querySelectorAll('[data-scroll]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const target = btn.getAttribute('data-scroll');
-          if (target === 'top') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (target === 'bottom') {
-            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-          }
-          if (mobileMenuOpen) toggleMobileMenu(false);
-        });
-      });
-
-      // Mobile Menu logic
-      const hamburgerBtn = document.getElementById('hamburger-btn');
-      const mobileMenuPanel = document.getElementById('mobile-menu-panel');
-      let mobileMenuOpen = false;
-
-      function toggleMobileMenu(open) {
-        mobileMenuOpen = open;
-        hamburgerBtn.classList.toggle('is-active', open);
-        hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-        mobileMenuPanel.classList.toggle('is-open', open);
-        if (open) {
-          mobileMenuPanel.removeAttribute('inert');
-          const firstBtn = mobileMenuPanel.querySelector('button, a');
-          if (firstBtn) firstBtn.focus();
-        } else {
-          mobileMenuPanel.setAttribute('inert', '');
-        }
-      }
-
-      hamburgerBtn.addEventListener('click', () => toggleMobileMenu(!mobileMenuOpen));
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && mobileMenuOpen) {
-          toggleMobileMenu(false);
-          hamburgerBtn.focus();
-        }
-      });
-
-      document.addEventListener('click', (e) => {
-        if (mobileMenuOpen && !mobileMenuPanel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-          toggleMobileMenu(false);
-        }
-      });
 
       // --- 7. Master Animation & Render Loop ---
       let lastTime = performance.now();
