@@ -146,12 +146,12 @@
       will-change: transform, opacity;
     }
 
-    /* 2. Secondary Big Title: "你的解籤日記" (Flush to bottom edge) */
+    /* 2. Secondary Big Title: "你的解籤日記" (Submerged / cropped at bottom edge) */
     .section2-title-wrap {
       position: absolute;
-      bottom: -3.5vh;
+      bottom: 0;
       left: 50%;
-      transform: translate3d(-50%, 0, 0);
+      transform: translate3d(-50%, 25%, 0);
       width: 100vw;
       text-align: center;
       pointer-events: none;
@@ -161,10 +161,10 @@
     .diff-title {
       font-family: 'Noto Serif TC', 'Songti TC', 'STSong', serif;
       font-weight: 900;
-      font-size: clamp(90px, 15vw, 240px);
-      letter-spacing: 0.08em;
-      text-indent: 0.08em;
-      line-height: 0.82;
+      font-size: clamp(100px, 16vw, 250px);
+      letter-spacing: 0.05em;
+      text-indent: 0.05em;
+      line-height: 0.75;
       color: #ffffff;
       text-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 4px 20px rgba(0, 0, 0, 0.7);
       user-select: none;
