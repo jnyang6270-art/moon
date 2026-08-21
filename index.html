@@ -110,7 +110,7 @@
       left: 50%;
       width: 105vw;
       height: auto;
-      min-height: 125vh;
+      min-height: 140vh;
       transform: translate3d(-50%, 0, 0);
       object-fit: cover;
       will-change: transform;
@@ -1248,10 +1248,10 @@
         const rawTrans = clamp((smoothScroll - 0.08) / 0.72);
         const transition = easeInOutCubic(rawTrans);
 
-        // A. Background Parallax with dynamic mouse tilt
-        const heroCrop = -layoutState.bgHeight * 0.115;
-        const finalCrop = -layoutState.bgHeight * 0.303;
-        const currentBgY = lerp(heroCrop, finalCrop, transition) + smoothMouseY * 12;
+        // A. Background Parallax: Scroll smoothly from top sky (0) to bottom sea (-maxShift)
+        const bgH = landscapeImg.offsetHeight || landscapeImg.clientHeight || layoutState.bgHeight;
+        const maxShift = Math.max(0, bgH - window.innerHeight);
+        const currentBgY = lerp(0, -maxShift, smoothScroll) + smoothMouseY * 12;
         const currentBgX = smoothMouseX * -15;
         landscapeImg.style.transform = `translate3d(calc(-50% + ${currentBgX}px), ${currentBgY}px, 0)`;
 
