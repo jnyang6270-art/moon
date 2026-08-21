@@ -146,10 +146,10 @@
       will-change: transform, opacity;
     }
 
-    /* 2. Secondary Big Title: "你的解籤日記" (Flush to bottom) */
+    /* 2. Secondary Big Title: "你的解籤日記" (Flush to bottom edge) */
     .section2-title-wrap {
       position: absolute;
-      bottom: -15px;
+      bottom: -3.5vh;
       left: 50%;
       transform: translate3d(-50%, 0, 0);
       width: 100vw;
@@ -161,14 +161,16 @@
     .diff-title {
       font-family: 'Noto Serif TC', 'Songti TC', 'STSong', serif;
       font-weight: 900;
-      font-size: clamp(80px, 14vw, 220px);
-      letter-spacing: 0.12em;
-      text-indent: 0.12em;
-      line-height: 0.9;
+      font-size: clamp(90px, 15vw, 240px);
+      letter-spacing: 0.08em;
+      text-indent: 0.08em;
+      line-height: 0.82;
       color: #ffffff;
-      text-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 4px 20px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 4px 20px rgba(0, 0, 0, 0.7);
       user-select: none;
       white-space: nowrap;
+      margin: 0;
+      padding: 0;
     }
 
     .diff-char {
@@ -600,10 +602,10 @@
       const heroX = 0;
       const heroY = 0;
 
-      // 2. Final State (Scroll = 1): Moon floats gracefully centered above the bottom title and between the 4 callouts
-      const sectionDiameter = Math.min(w * 0.38, h * 0.46, 420);
+      // 2. Final State (Scroll = 1): Moon floats centered between the 4 callouts and directly above bottom title
+      const sectionDiameter = Math.min(w * 0.44, h * 0.54, 460);
       const sectionX = 0;
-      const sectionY = h * 0.08; // slightly elevated above center
+      const sectionY = h * 0.04;
 
       // Current interpolation
       const curDiameter = lerp(heroDiameter, sectionDiameter, transition);
