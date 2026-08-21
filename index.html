@@ -1248,10 +1248,15 @@
         const rawTrans = clamp((smoothScroll - 0.08) / 0.72);
         const transition = easeInOutCubic(rawTrans);
 
-        // A. Background Parallax: Scroll smoothly from top sky (0) to bottom sea (-maxShift)
-        const bgH = landscapeImg.offsetHeight || landscapeImg.clientHeight || layoutState.bgHeight;
-        const maxShift = Math.max(0, bgH - window.innerHeight);
-        const currentBgY = lerp(0, -maxShift, smoothScroll) + smoothMouseY * 12;
+        // A. Background Parallax: Accurately compute true rendered height so the bottom sea is 100% reached
+        const naturalRatio = (landscapeImg.naturalHeight && landscapeImg.naturalWidth)
+          ? (landscapeImg.naturalHeight / landscapeImg.naturalWidth)
+          : (1024 / 576);
+        const imgWidth = landscapeImg.getBoundingClientRect().width || window.innerWidth * 1.05;
+        const trueRenderedHeight = Math.max(imgWidth * naturalRatio, window.innerHeight * 1.4);
+        const maxShift = Math.max(0, trueRenderedHeight - window.innerHeight);
+
+        const currentBgY = -maxShift * smoothScroll + smoothMouseY * 12;
         const currentBgX = smoothMouseX * -15;
         landscapeImg.style.transform = `translate3d(calc(-50% + ${currentBgX}px), ${currentBgY}px, 0)`;
 
