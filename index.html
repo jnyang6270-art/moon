@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#060a14">
+  <meta name="theme-color" content="#0d172e">
   <title>三分 — 你的解籤日記</title>
 
-  <!-- Google Fonts for High-End Chinese Display Typography -->
+  <!-- Google Fonts for Chinese Display Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@700;900&family=Noto+Serif+TC:wght@700;900&family=ZCOOL+QingKe+HuangYou&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 
-  <!-- Three.js + GLTFLoader (ES Modules) -->
+  <!-- Three.js + GLTFLoader (Modern ES Modules & Import Map for r160) -->
   <script type="importmap">
     {
       "imports": {
@@ -22,21 +22,67 @@
   </script>
 
   <style>
+    @font-face {
+      font-family: 'Suisse Fallback';
+      src: local('Inter Medium'), local('Inter-Medium');
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Suisse Fallback';
+      src: local('Inter SemiBold'), local('Inter-SemiBold');
+      font-weight: 600;
+      font-display: swap;
+    }
+
+    :root {
+      --desktop-scale: 1;
+      --header-scale: 1;
+      --brand-edge-margin: 45px;
+      --social-edge-margin: 38.6204px;
+      --design-width: 1726;
+      --design-height: 1195;
+      --tablet-layout: 0;
+      --mobile-layout: 0;
+      --hero-background-crop: 0.115;
+      --final-background-crop: 0.303;
+      --sky-blue: #0d172e;
+      --section-cookie-radius: 250px;
+      --mobile-callouts-top: 550px;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      user-select: none;
     }
 
     html, body {
       width: 100%;
-      height: 320vh;
-      background: #060a14;
+      min-height: 320vh;
+      background: #0d172e;
+      color: #ffffff;
+      font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
       overflow-x: hidden;
-      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      scrollbar-width: none;
     }
 
-    /* Fixed, pinned viewport */
+    html::-webkit-scrollbar, body::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+
+    .experience {
+      position: relative;
+      width: 100%;
+      height: 320vh;
+      pointer-events: none;
+    }
+
+    /* Fixed Viewport Container */
     .viewport {
       position: fixed;
       top: 0;
@@ -45,19 +91,20 @@
       height: 100vh;
       height: 100dvh;
       overflow: hidden;
-      background: #060a14;
+      pointer-events: auto;
     }
 
-    /* Background image with accurate scroll-driven parallax */
-    .bg {
+    /* Background Scene */
+    .scene {
       position: absolute;
       inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
       overflow: hidden;
-      z-index: 0;
-      pointer-events: none;
     }
 
-    .bg img {
+    .scene .landscape {
       position: absolute;
       top: 0;
       left: 50%;
@@ -67,10 +114,12 @@
       transform: translate3d(-50%, 0, 0);
       object-fit: cover;
       will-change: transform;
+      pointer-events: none;
+      transition: filter 0.5s ease;
     }
 
     @media (max-width: 1060px) and (max-aspect-ratio: 49/64) {
-      .bg img {
+      .scene .landscape {
         height: 145dvh;
         width: auto;
         min-width: 105vw;
@@ -78,563 +127,1089 @@
       }
     }
 
-    .bg-scrim {
+    .scene-vignette {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(3, 6, 14, 0.45) 0%, rgba(3, 6, 14, 0.05) 35%, rgba(3, 6, 14, 0.1) 70%, rgba(3, 6, 14, 0.35) 100%);
+      background: linear-gradient(180deg, rgba(6, 40, 52, 0.035), transparent 32%, rgba(18, 25, 9, 0.025));
       pointer-events: none;
-      z-index: 1;
+      z-index: 2;
     }
 
-    /* Brand Text: 天時。地利。人和 (Top Left) */
-    .brand-mark {
-      position: fixed;
-      top: 32px;
-      left: 36px;
-      font-family: 'Noto Serif TC', 'Songti TC', 'STSong', serif;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 0.35em;
-      color: rgba(255, 255, 255, 0.92);
-      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.2);
-      z-index: 10;
+    /* Ambient dynamic glow overlay */
+    .ambient-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      width: 600px;
+      height: 600px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(74, 129, 146, 0) 70%);
+      border-radius: 50%;
       pointer-events: none;
-      user-select: none;
+      z-index: 2;
+      animation: pulseGlow 6s ease-in-out infinite alternate;
     }
 
-    /* 3D Moon Canvas */
-    #moon-canvas {
+    @keyframes pulseGlow {
+      0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.9; }
+    }
+
+    /* Stage Canvas System (1726 x 1195) */
+    .stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1726px;
+      height: 1195px;
+      transform: translate(-50%, -50%) scale(var(--desktop-scale));
+      transform-origin: center center;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 300ms ease-out;
+      pointer-events: none;
+    }
+
+    .stage.is-ready {
+      opacity: 1;
+    }
+
+    #cookie-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    /* Scene Titles Container */
-    .title-layer {
-      position: absolute;
-      inset: 0;
       z-index: 3;
       pointer-events: none;
     }
 
-    /* 1. Super Big Hero Title: "三" (Left) and "分" (Right) flanking the Moon */
-    .hero-title-wrap {
+    /* Header Nav */
+    .scene-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 300ms ease-out;
+      pointer-events: auto;
+    }
+
+    .scene-nav.is-ready {
+      opacity: 1;
+    }
+
+    .brand-link {
       position: absolute;
-      top: 50%;
+      top: 36px;
+      left: var(--brand-edge-margin);
+      width: 167px;
+      height: 35.2px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: #ffffff;
+      transform-origin: top left;
+      transform: scale(var(--header-scale));
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .brand-link:hover {
+      transform: scale(calc(var(--header-scale) * 1.05));
+    }
+
+    .brand-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .center-nav {
+      position: absolute;
+      top: 30px;
       left: 50%;
-      transform: translate3d(-50%, -50%, 0);
-      width: 92vw;
-      max-width: 1600px;
+      transform: translateX(-50%) scale(var(--header-scale));
+      transform-origin: top center;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: 47px;
+    }
+
+    .nav-pill {
+      height: 47px;
+      border-radius: 14px;
+      padding: 0 18px;
+      font-size: 13.3846px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      background: rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10.7px);
+      -webkit-backdrop-filter: blur(10.7px);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: background 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .nav-pill:hover {
+      background: rgba(0, 0, 0, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-pill.shop-pill {
+      background: #0b0b0b;
+      width: 92.7932px;
+      gap: 10px;
+      justify-content: flex-start;
+      padding-left: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .nav-pill.shop-pill:hover {
+      background: #1f1f1f;
+    }
+
+    .nav-pill.cookies-pill { width: 86px; }
+    .nav-pill.about-pill { width: 92px; }
+    .nav-pill.ingredients-pill { width: 104px; }
+
+    .right-cluster {
+      position: absolute;
+      top: 30px;
+      right: var(--social-edge-margin);
+      transform: scale(var(--header-scale));
+      transform-origin: top right;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: 47px;
+    }
+
+    .social-tray {
+      width: 138.3796px;
+      height: 47px;
+      border-radius: 14px;
+      background: rgba(11, 11, 11, 0.12);
+      backdrop-filter: blur(15.7px);
+      -webkit-backdrop-filter: blur(15.7px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .social-link {
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.85;
+      transition: opacity 0.2s, transform 0.2s;
+      text-decoration: none;
+    }
+
+    .social-link:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .cart-btn {
+      width: 47px;
+      height: 47px;
+      border-radius: 14px;
+      background: #0b0b0b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #ffffff;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .cart-btn:hover {
+      background: #222222;
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    /* Floating Interactive Controls */
+    .action-hud {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 20;
+      pointer-events: auto;
+    }
+
+    .hud-btn {
+      height: 42px;
+      padding: 0 18px;
+      border-radius: 21px;
+      background: rgba(11, 11, 11, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.95);
+      color: #0b0b0b;
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .scroll-hint {
+      animation: bounceHint 2s infinite ease-in-out;
+    }
+
+    @keyframes bounceHint {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+      60% { transform: translateY(-3px); }
+    }
+
+    /* Mobile / Tablet Hamburger */
+    .hamburger-btn {
+      display: none;
+      position: absolute;
+      top: 25px;
+      right: 20px;
+      width: 47px;
+      height: 47px;
+      border-radius: 14px;
+      background: #0b0b0b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      z-index: 100;
+    }
+
+    .hamburger-line {
+      width: 17px;
+      height: 2px;
+      background: #ffffff;
+      border-radius: 1px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .hamburger-btn.is-active .line-1 { transform: translateY(6px) rotate(45deg); }
+    .hamburger-btn.is-active .line-2 { opacity: 0; }
+    .hamburger-btn.is-active .line-3 { transform: translateY(-6px) rotate(-45deg); }
+
+    .mobile-menu-panel {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: min(360px, calc(100vw - 40px));
+      border-radius: 24px;
+      background: rgba(22, 59, 70, 0.75);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 18px 60px rgba(7, 24, 30, 0.35);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.95);
+      transition: opacity 200ms ease, transform 200ms ease;
+      z-index: 99;
+    }
+
+    .mobile-menu-panel.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .mobile-pills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mobile-bottom-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      pointer-events: none;
+      gap: 10px;
     }
 
-    .hero-char {
-      display: inline-block;
-      font-family: 'Noto Serif TC', 'Songti TC', 'STSong', serif;
-      font-weight: 900;
-      font-size: clamp(140px, 22vw, 380px);
-      line-height: 0.9;
-      color: #ffffff;
-      text-shadow: 0 20px 70px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.6);
-      user-select: none;
-      will-change: transform, opacity;
-    }
-
-    /* 2. Secondary Big Title: "你的解籤日記" (Submerged / cropped at bottom edge) */
-    .section2-title-wrap {
+    /* Titles */
+    .title-container {
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translate3d(-50%, 25%, 0);
-      width: 100vw;
-      text-align: center;
+      white-space: nowrap;
+      perspective: 800px;
       pointer-events: none;
+    }
+
+    .brand-text {
+      position: absolute;
+      top: 36px;
+      left: var(--brand-edge-margin);
+      font-family: 'Noto Serif TC', 'Songti TC', serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.35em;
+      color: rgba(255, 255, 255, 0.92);
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+      transform: scale(var(--header-scale));
+      transform-origin: top left;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .hero-title {
+      top: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1650px;
+      height: 360px;
+      font-family: 'Noto Serif TC', 'Songti TC', 'STSong', 'SimSun', serif;
+      font-weight: 900;
+      font-size: 330px;
+      line-height: 0.9;
+      letter-spacing: 0.58em;
+      text-indent: 0.58em;
+      text-align: center;
       z-index: 4;
+      text-shadow: 0 20px 70px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.6);
     }
 
     .diff-title {
-      font-family: 'Noto Serif TC', 'Songti TC', 'STSong', serif;
+      top: 1005px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1650px;
+      height: 220px;
+      font-family: 'Noto Serif TC', 'Songti TC', 'STSong', 'SimSun', serif;
       font-weight: 900;
-      font-size: clamp(100px, 16vw, 250px);
-      letter-spacing: 0.05em;
-      text-indent: 0.05em;
-      line-height: 0.75;
-      color: #ffffff;
-      text-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 4px 20px rgba(0, 0, 0, 0.7);
-      user-select: none;
-      white-space: nowrap;
-      margin: 0;
-      padding: 0;
+      font-size: 195px;
+      line-height: 0.8;
+      letter-spacing: 0.08em;
+      text-indent: 0.08em;
+      text-align: center;
+      z-index: 4;
+      text-shadow: 0 20px 70px rgba(0, 0, 0, 0.95), 0 4px 20px rgba(0, 0, 0, 0.7);
     }
 
-    .diff-char {
+    .split-char {
       display: inline-block;
+      transform-origin: 50% 70%;
       will-change: transform, opacity;
+      transition: color 0.3s ease;
     }
 
-    /* Callouts Layer around Moon in Scene 2 */
+    /* Ingredient Callouts */
     .callouts-layer {
       position: absolute;
       inset: 0;
+      z-index: 5;
       pointer-events: none;
-      z-index: 3;
     }
 
     .callout-item {
       position: absolute;
+      height: 81px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      opacity: 0;
-      will-change: transform, opacity;
+      gap: 6px;
+      pointer-events: auto;
+      cursor: pointer;
     }
 
     .callout-label {
-      background: rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      border-radius: 16px;
-      padding: 12px 20px;
-      color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 14px;
+      height: 81px;
+      border-radius: 24px;
+      background: rgba(0, 0, 0, 0.18);
+      backdrop-filter: blur(35.8px);
+      -webkit-backdrop-filter: blur(35.8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
+      font-size: 20px;
       font-weight: 600;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      padding: 0 26px;
       white-space: nowrap;
+      will-change: transform, opacity;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     .callout-tile {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      width: 81px;
+      height: 81px;
+      border-radius: 24.1277px;
+      background: #0b0b0b;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
       flex-shrink: 0;
+      will-change: transform, opacity;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
     }
 
-    /* Placements relative to center of screen */
+    .callout-item:hover .callout-tile {
+      transform: scale(1.08) rotate(5deg) !important;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+    }
+    .callout-item:hover .callout-label {
+      background: rgba(0, 0, 0, 0.32);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Callout absolute placements */
     .callout-0 {
-      right: calc(50% + 220px);
-      top: calc(50% - 150px);
+      right: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% - (var(--section-cookie-radius) * 0.84) - 40.5px);
     }
+
     .callout-1 {
-      left: calc(50% + 220px);
-      top: calc(50% - 150px);
+      left: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% - (var(--section-cookie-radius) * 0.84) - 40.5px);
     }
+
     .callout-2 {
-      right: calc(50% + 220px);
-      top: calc(50% + 60px);
+      right: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% + (var(--section-cookie-radius) * 0.84) - 40.5px);
     }
+
     .callout-3 {
-      left: calc(50% + 220px);
-      top: calc(50% + 60px);
+      left: calc(50% + var(--section-cookie-radius) + 36px);
+      top: calc(50% + (var(--section-cookie-radius) * 0.84) - 40.5px);
     }
 
-    /* Loading HUD */
-    #loading-hud {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 50;
-      color: #fff;
-      font-family: 'Noto Serif TC', sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.1em;
-      background: rgba(6, 10, 20, 0.8);
-      padding: 14px 28px;
-      border-radius: 30px;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    .callout-0 .callout-label { width: 275px; }
+    .callout-1 .callout-label { width: 288px; }
+    .callout-2 .callout-label { width: 293px; }
+    .callout-3 .callout-label { width: 238px; }
+
+    /* Responsive Media Queries */
+    @media (max-width: 1060px) {
+      :root {
+        --tablet-layout: 1;
+      }
+      .center-nav, .right-cluster {
+        display: none !important;
+      }
+      .hamburger-btn {
+        display: flex;
+      }
+      .hero-title {
+        font-size: 280px;
+        top: 80px;
+        left: 163px;
+        width: 1400px;
+      }
     }
 
-    #loading-hud svg { animation: spin 1s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    @media (max-width: 768px) {
-      .brand-mark {
-        top: 24px;
+    @media (max-width: 620px) {
+      :root {
+        --mobile-layout: 1;
+      }
+      .brand-link {
+        top: 25px;
         left: 20px;
-        font-size: 13px;
-        letter-spacing: 0.25em;
+        transform: scale(0.75);
       }
-      .hero-title-wrap {
-        width: 95vw;
-      }
-      .hero-char {
-        font-size: clamp(90px, 25vw, 180px);
+      .hero-title {
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 530px !important;
+        font-size: 102px !important;
       }
       .diff-title {
-        font-size: clamp(38px, 10vw, 76px);
-        letter-spacing: 0.1em;
-        text-indent: 0.1em;
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 530px !important;
+        font-size: 92px !important;
+      }
+      .callouts-layer {
+        position: absolute;
+        top: var(--mobile-callouts-top);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .callout-item {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        height: 72px;
+        width: 100%;
+      }
+      .callout-label {
+        height: 72px;
+        font-size: 15px;
+        padding: 0 12px;
+        border-radius: 21px;
+        width: 100% !important;
+        white-space: normal;
+        line-height: 1.2;
+        text-align: center;
+        justify-content: center;
+      }
+      .callout-tile {
+        width: 72px;
+        height: 72px;
+        border-radius: 21px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class=viewport>
-    <!-- 1. Background scene & Parallax -->
-    <div class=bg>
-      <img id="bg-img" src="https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/background.jpg" alt="Starry sky over the sea at dusk">
+  <!-- Scroll container of 320vh -->
+  <main class="experience">
+    <div class="viewport">
+      <!-- 1. Background scene & parallax -->
+      <div class="scene">
+        <img class="landscape" id="landscape-img" src="https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/background.jpg" alt="Starry Sky Sea Landscape">
+        <div class="scene-vignette"></div>
+        <div class="ambient-glow"></div>
+      </div>
+
+      <!-- 2. Header UI -->
+      <nav class="scene-nav" id="scene-nav">
+        <!-- Brand Text: 天時。地利。人和 -->
+        <div class="brand-text">天時。地利。人和</div>
+      </nav>
+
+      <!-- 3. Stage Container (1726 x 1195) -->
+      <div class="stage" id="stage">
+        <!-- Three.js Canvas -->
+        <canvas id="cookie-canvas"></canvas>
+
+        <!-- Hero Title -->
+        <h1 class="title-container hero-title" id="hero-title">三 分</h1>
+
+        <!-- Section 2 Title -->
+        <h2 class="title-container diff-title" id="diff-title">你的解籤日記</h2>
+
+        <!-- Callouts Layer -->
+        <div class="callouts-layer" id="callouts-layer">
+          <!-- Callout 0: Top-Left (label, icon) -->
+          <div class="callout-item callout-0" data-order="0">
+            <div class="callout-label" style="transform-origin: right center;">70% Single-Origin Dark</div>
+            <div class="callout-tile">
+              <!-- Chocolate Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+                <line x1="3" y1="15" x2="21" y2="15"></line>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="15" y1="3" x2="15" y2="21"></line>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Callout 1: Top-Right (icon, label) -->
+          <div class="callout-item callout-1" data-order="1">
+            <div class="callout-tile">
+              <!-- Leaf Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+              </svg>
+            </div>
+            <div class="callout-label" style="transform-origin: left center;">Organic Grass-fed Butter</div>
+          </div>
+
+          <!-- Callout 2: Bottom-Left (label, icon) -->
+          <div class="callout-item callout-2" data-order="2">
+            <div class="callout-label" style="transform-origin: right center;">Organic Maple &amp; Coconut</div>
+            <div class="callout-tile">
+              <!-- Egg Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22c4.97 0 9-4.03 9-9 0-4.97-4.03-11-9-11S3 8.03 3 13c0 4.97 4.03 9 9 9z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Callout 3: Bottom-Right (icon, label) -->
+          <div class="callout-item callout-3" data-order="3">
+            <div class="callout-tile">
+              <!-- Flash Icon -->
+              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <div class="callout-label" style="transform-origin: left center;">Light, Aerated Snap</div>
+          </div>
+        </div>
+      </div>
+
+
+
     </div>
-    <div class=bg-scrim></div>
-
-    <!-- 2. Top-Left Brand Text -->
-    <div class="brand-mark">天時。地利。人和</div>
-
-    <!-- 3. Three.js 3D Moon Canvas -->
-    <canvas id="moon-canvas"></canvas>
-
-    <!-- 4. Typography Layer -->
-    <div class="title-layer">
-      <!-- Super Big Title: "三" on left, "分" on right of the moon -->
-      <div class="hero-title-wrap" id="hero-wrap">
-        <span class="hero-char char-left" id="char-san">三</span>
-        <span class="hero-char char-right" id="char-fen">分</span>
-      </div>
-
-      <!-- Secondary Big Title: "你的解籤日記" flush to bottom -->
-      <div class="section2-title-wrap" id="diff-wrap">
-        <h2 class="diff-title" id="diff-title">你的解籤日記</h2>
-      </div>
-
-      <!-- Callouts Layer around Moon in Scene 2 -->
-      <div class="callouts-layer" id="callouts-layer">
-        <!-- Callout 0: Top-Left -->
-        <div class="callout-item callout-0">
-          <div class="callout-label">70% Single-Origin Dark</div>
-          <div class="callout-tile">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-              <line x1="3" y1="9" x2="21" y2="9"></line>
-              <line x1="3" y1="15" x2="21" y2="15"></line>
-              <line x1="9" y1="3" x2="9" y2="21"></line>
-              <line x1="15" y1="3" x2="15" y2="21"></line>
-            </svg>
-          </div>
-        </div>
-
-        <!-- Callout 1: Top-Right -->
-        <div class="callout-item callout-1">
-          <div class="callout-tile">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
-              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
-            </svg>
-          </div>
-          <div class="callout-label">Organic Grass-fed Butter</div>
-        </div>
-
-        <!-- Callout 2: Bottom-Left -->
-        <div class="callout-item callout-2">
-          <div class="callout-label">Organic Maple &amp; Coconut</div>
-          <div class="callout-tile">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22c4.97 0 9-4.03 9-9 0-4.97-4.03-11-9-11S3 8.03 3 13c0 4.97 4.03 9 9 9z"></path>
-            </svg>
-          </div>
-        </div>
-
-        <!-- Callout 3: Bottom-Right -->
-        <div class="callout-item callout-3">
-          <div class="callout-tile">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-          </div>
-          <div class="callout-label">Light, Aerated Snap</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading HUD -->
-  <div id="loading-hud">
-    <svg width="18" height="18" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5" fill="none">
-      <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
-      <path d="M12 2a10 10 0 0 1 10 10"/>
-    </svg>
-    <span id="loading-text">正在載入 3D 月球...</span>
-  </div>
-
-  <script>
-    function clamp(v, min = 0, max = 1) { return Math.max(min, Math.min(max, v)); }
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-    function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
-
-    // Split secondary title into animated characters
-    const diffTitleEl = document.getElementById('diff-title');
-    const diffText = diffTitleEl.textContent.trim();
-    diffTitleEl.innerHTML = '';
-    const diffLetters = [];
-    for (let i = 0; i < diffText.length; i++) {
-      const span = document.createElement('span');
-      span.className = 'diff-char';
-      span.textContent = diffText[i];
-      diffTitleEl.appendChild(span);
-      diffLetters.push(span);
-      span.style.opacity = '0';
-    }
-
-    const charSan = document.getElementById('char-san');
-    const charFen = document.getElementById('char-fen');
-    const bgImg = document.getElementById('bg-img');
-
-    let targetScroll = 0;
-    let smoothScroll = 0;
-
-    function onScroll() {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      targetScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-
-    let mouseX = 0, mouseY = 0, smoothMouseX = 0, smoothMouseY = 0;
-    window.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    let lastTime = performance.now();
-
-    function tickText(now) {
-      const dt = clamp(now - lastTime, 0, 64);
-      lastTime = now;
-
-      const factor = 1 - Math.exp(-dt / 160);
-      smoothScroll += (targetScroll - smoothScroll) * factor;
-      if (Math.abs(targetScroll - smoothScroll) < 0.0005) smoothScroll = targetScroll;
-
-      smoothMouseX += (mouseX - smoothMouseX) * 0.08;
-      smoothMouseY += (mouseY - smoothMouseY) * 0.08;
-
-      // 1. Background Parallax: smooth pan all the way down to reveal the sea
-      const naturalRatio = (bgImg.naturalHeight && bgImg.naturalWidth)
-        ? (bgImg.naturalHeight / bgImg.naturalWidth)
-        : (1024 / 576);
-      const imgWidth = bgImg.getBoundingClientRect().width || window.innerWidth * 1.05;
-      const trueRenderedHeight = Math.max(imgWidth * naturalRatio, window.innerHeight * 1.4);
-      const maxShift = Math.max(0, trueRenderedHeight - window.innerHeight);
-      const bgY = -maxShift * smoothScroll + smoothMouseY * 12;
-      const bgX = smoothMouseX * -15;
-      bgImg.style.transform = `translate3d(calc(-50% + ${bgX}px), ${bgY}px, 0)`;
-
-      // 2. Super Big Title "三 分" Animation: Flanking the moon and expanding apart on scroll
-      const heroDisperseP = easeInOutCubic(clamp(smoothScroll / 0.45));
-      const heroOpacity = 1 - clamp((heroDisperseP - 0.15) / 0.85);
-
-      // "三" moves left & tilts slightly
-      charSan.style.transform = `translate3d(${-heroDisperseP * 240 + smoothMouseX * -20}px, ${-heroDisperseP * 60 + smoothMouseY * 10}px, 0) scale(${1 + heroDisperseP * 0.15})`;
-      charSan.style.opacity = heroOpacity;
-
-      // "分" moves right & tilts slightly
-      charFen.style.transform = `translate3d(${heroDisperseP * 240 + smoothMouseX * 20}px, ${-heroDisperseP * 60 + smoothMouseY * 10}px, 0) scale(${1 + heroDisperseP * 0.15})`;
-      charFen.style.opacity = heroOpacity;
-
-      // 3. Secondary Big Title "你的解籤日記" Animation: Rising from bottom to completely flush at bottom
-      const diffEnterP = easeOutCubic(clamp((smoothScroll - 0.38) / 0.58));
-      diffLetters.forEach((span, i) => {
-        const yOffset = (1 - diffEnterP) * 100;
-        const charOpacity = clamp((diffEnterP - i * 0.03) / 0.85);
-        span.style.transform = `translate3d(0, ${yOffset}px, 0)`;
-        span.style.opacity = charOpacity;
-      });
-
-      // 4. Callout cards animation around the moon
-      const callouts = document.querySelectorAll('.callout-item');
-      callouts.forEach((item, i) => {
-        const p = easeOutCubic(clamp((smoothScroll - 0.45 - i * 0.04) / 0.45));
-        item.style.opacity = p;
-        item.style.transform = `translate3d(0, ${(1 - p) * 35}px, 0)`;
-      });
-
-      requestAnimationFrame(tickText);
-    }
-
-    requestAnimationFrame(tickText);
-
-    // Expose smoothed scroll and mouse coordinates to Three.js script
-    window.__scene = {
-      get scroll() { return smoothScroll; },
-      get mouseX() { return smoothMouseX; },
-      get mouseY() { return smoothMouseY; }
-    };
-  </script>
+  </main>
 
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-    function clamp(v, min = 0, max = 1) { return Math.max(min, Math.min(max, v)); }
-    function lerp(a, b, t) { return a + (b - a) * t; }
-    function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
-
-    const canvas = document.getElementById('moon-canvas');
-    const loadingHud = document.getElementById('loading-hud');
-    const loadingText = document.getElementById('loading-text');
-
-    const scene = new THREE.Scene();
-    let w = window.innerWidth, h = window.innerHeight;
-    const camera = new THREE.OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 0.1, 5000);
-    camera.position.z = 2000;
-
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
-    renderer.setSize(w, h, false);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.setClearColor(0x000000, 0);
-
-    function resize() {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      camera.left = -w / 2;
-      camera.right = w / 2;
-      camera.top = h / 2;
-      camera.bottom = -h / 2;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h, false);
-    }
-    window.addEventListener('resize', resize);
-
-    // Dynamic Lighting
-    scene.add(new THREE.HemisphereLight(0xcde0ff, 0x221820, 0.9));
-    const keyLight = new THREE.DirectionalLight(0xf5f8ff, 1.4);
-    keyLight.position.set(-600, 800, 1400);
-    scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0xffbe88, 0.7);
-    rimLight.position.set(700, -200, 600);
-    scene.add(rimLight);
-
-    const moonGroup = new THREE.Group();
-    const innerGroup = new THREE.Group();
-    moonGroup.add(innerGroup);
-    scene.add(moonGroup);
-
-    let ready = false;
-    let loadStartTime = performance.now();
-
-    function applyGltfModel(gltf) {
-      const model = gltf.scene || gltf.scenes[0];
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z);
-
-      model.position.sub(center);
-      if (maxDim > 0) {
-        model.scale.multiplyScalar(1 / maxDim);
+    // --- 1. Easing helpers ---
+      function clamp(val, min = 0, max = 1) {
+        return Math.max(min, Math.min(max, val));
+      }
+      function lerp(a, b, t) {
+        return a + (b - a) * t;
+      }
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+      function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+      function easeOutBack(t) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
       }
 
-      model.traverse((child) => {
-        if (child.isMesh) {
-          child.castShadow = false;
-          child.receiveShadow = false;
-          if (child.material) {
-            child.material.toneMapped = true;
-            child.material.depthWrite = true;
+      // --- 2. DOM Split-text setup ---
+      function splitTextToSpans(element) {
+        const text = element.textContent.trim();
+        element.innerHTML = '';
+        const spans = [];
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          const span = document.createElement('span');
+          span.className = 'split-char';
+          if (char === ' ') {
+            span.innerHTML = '&nbsp;';
+          } else {
+            span.textContent = char;
           }
+          element.appendChild(span);
+          spans.push(span);
         }
+        return spans;
+      }
+
+      const heroTitleEl = document.getElementById('hero-title');
+      const diffTitleEl = document.getElementById('diff-title');
+      const heroSpans = splitTextToSpans(heroTitleEl);
+      const diffSpans = splitTextToSpans(diffTitleEl);
+
+      const calloutEls = Array.from(document.querySelectorAll('.callout-item'));
+      const calloutData = calloutEls.map(el => {
+        const order = parseInt(el.getAttribute('data-order'), 10);
+        const tile = el.querySelector('.callout-tile');
+        const label = el.querySelector('.callout-label');
+        return { el, order, tile, label };
       });
 
-      innerGroup.add(model);
-      ready = true;
-      loadStartTime = performance.now();
+      // --- 3. Stage & Layout calculations ---
+      const stageEl = document.getElementById('stage');
+      const sceneNavEl = document.getElementById('scene-nav');
+      const landscapeImg = document.getElementById('landscape-img');
 
-      if (loadingHud) {
+      let layoutState = {
+        w: window.innerWidth,
+        h: window.innerHeight,
+        scale: 1,
+        headerScale: 1,
+        isTablet: false,
+        isMobile: false,
+        heroY: 0,
+        sectionY: 0,
+        heroScale: 1,
+        sectionScale: 1,
+        bgHeight: 1280
+      };
+
+      function updateLayout() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const isTablet = w <= 1060;
+        const isMobile = w <= 620;
+
+        let scale = isMobile ? Math.max(w / 1726, h / 1195) : Math.min(w / 1726, h / 1195);
+        let headerScale = isTablet ? clamp(w / 900, 0.82, 1) : Math.min(1, w / 1726);
+
+        document.documentElement.style.setProperty('--desktop-scale', scale);
+        document.documentElement.style.setProperty('--header-scale', headerScale);
+
+        // Calculate cookie positions in design stage coordinates
+        const targetDiameter = 532; // base diameter
+        let heroScale = 1;
+        let sectionScale = 1;
+        let heroY = 0;
+        let sectionY = 0;
+
+        if (isMobile) {
+          const heroD = clamp(w * 0.72, 250, 310);
+          const secD = clamp(w * 0.67, 235, 300);
+          heroScale = heroD / targetDiameter;
+          sectionScale = secD / targetDiameter;
+          heroY = 50;
+          sectionY = (h * 0.445 - h / 2) / scale;
+          document.documentElement.style.setProperty('--mobile-callouts-top', `${(1195 / 2 + sectionY + (secD / scale) * 0.5 + 20)}px`);
+        } else if (isTablet) {
+          const heroD = clamp(w * 0.38, 260, 340);
+          heroScale = heroD / targetDiameter;
+          sectionScale = heroScale;
+          heroY = 20;
+          sectionY = 0;
+        } else {
+          // Desktop Corridor: between hero-title bottom (409) and "The Difference" top (937)
+          const corridorCenter = (409 + 937) / 2; // 673
+          heroY = 1195 / 2 - corridorCenter; // ~ -75.5 relative to stage center
+          sectionY = 0;
+          heroScale = 1;
+          sectionScale = 1;
+        }
+
+        const secCookieRadius = (532 * sectionScale * 0.96) / 2;
+        document.documentElement.style.setProperty('--section-cookie-radius', `${secCookieRadius}px`);
+
+        layoutState = {
+          w, h, scale, headerScale, isTablet, isMobile,
+          heroY, sectionY, heroScale, sectionScale,
+          bgHeight: landscapeImg.clientHeight || 1280
+        };
+      }
+
+      window.addEventListener('resize', updateLayout);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateLayout);
+      }
+      updateLayout();
+
+      // --- 4. Mouse Interactive Parallax Tracking ---
+      let mouseX = 0;
+      let mouseY = 0;
+      let smoothMouseX = 0;
+      let smoothMouseY = 0;
+
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      // --- 5. Three.js Setup ---
+      const canvas = document.getElementById('cookie-canvas');
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.OrthographicCamera(-863, 863, 597.5, -597.5, 0.1, 4000);
+      camera.position.z = 2000;
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: 'high-performance'
+      });
+      renderer.setSize(1726, 1195, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.setClearColor(0x000000, 0);
+
+      // Lighting
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x704019, 0.9);
+      scene.add(hemiLight);
+
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
+      keyLight.position.set(-450, 650, 1200);
+      scene.add(keyLight);
+
+      const rimLight = new THREE.DirectionalLight(0xffb56b, 0.45);
+      rimLight.position.set(600, -100, 500);
+      scene.add(rimLight);
+
+      const fillLight = new THREE.DirectionalLight(0x73b0c2, 0.35);
+      fillLight.position.set(0, -500, 800);
+      scene.add(fillLight);
+
+      // Groups
+      const cookieGroup = new THREE.Group();
+      const innerGroup = new THREE.Group();
+      cookieGroup.add(innerGroup);
+      scene.add(cookieGroup);
+
+      // Loading indicator for original 3D Model
+      const loadingHud = document.createElement('div');
+      loadingHud.id = 'loading-hud';
+      loadingHud.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:999;color:#fff;font-family:sans-serif;font-size:14px;background:rgba(0,0,0,0.7);padding:14px 28px;border-radius:24px;backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;gap:12px;pointer-events:none;transition:opacity 0.4s ease;';
+      loadingHud.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" stroke="#ffffff" stroke-width="2.5" fill="none" style="animation:spinLoader 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg><span id="load-status">正在載入原始 3D 月球...</span>';
+      document.body.appendChild(loadingHud);
+
+      const spinStyle = document.createElement('style');
+      spinStyle.textContent = '@keyframes spinLoader { 100% { transform: rotate(360deg); } }';
+      document.head.appendChild(spinStyle);
+
+      let introStartTime = performance.now() + 100;
+
+      // Async GLB model loader
+      const loader = new GLTFLoader();
+
+      function applyGltfModel(gltf) {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+
+        model.position.sub(center);
+
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const baseScale = 532 / (maxDim || 1);
+
+        model.traverse((child) => {
+          if (child.isMesh && child.material) {
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            mats.forEach((mat) => {
+              mat.metalness = 0;
+              mat.roughness = Math.max(0.72, mat.roughness !== undefined ? mat.roughness : 0.8);
+              if (mat.map) {
+                mat.map.colorSpace = THREE.SRGBColorSpace;
+                mat.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+                mat.map.needsUpdate = true;
+              }
+              mat.needsUpdate = true;
+            });
+          }
+        });
+
+        innerGroup.scale.set(baseScale, baseScale, baseScale);
+        innerGroup.add(model);
+
+        // Hide loading indicator & reveal stage
         loadingHud.style.opacity = '0';
-        setTimeout(() => { loadingHud.remove(); }, 600);
+        setTimeout(() => loadingHud.remove(), 400);
+        introStartTime = performance.now();
+        stageEl.classList.add('is-ready');
+        sceneNavEl.classList.add('is-ready');
       }
-    }
 
-    const loader = new GLTFLoader();
-    loader.load(
-      'Hi3D-moon.glb',
-      applyGltfModel,
-      function (xhr) {
-        if (xhr.lengthComputable && loadingText) {
-          const pct = Math.round((xhr.loaded / xhr.total) * 100);
-          loadingText.textContent = `正在載入 3D 月球 (${pct}%)...`;
+      // Load original model
+      loader.load(
+        'Hi3D-moon.glb',
+        applyGltfModel,
+        function (xhr) {
+          if (xhr.lengthComputable && xhr.total > 0) {
+            const pct = Math.round((xhr.loaded / xhr.total) * 100);
+            const statusEl = document.getElementById('load-status');
+            if (statusEl) statusEl.textContent = `正在載入原始 3D 月球 (${pct}%)...`;
+          }
+        },
+        function (err) {
+          console.warn('Direct load failed, trying CDN fallback...', err);
+          loader.load(
+            'https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/moon-jsdelivr.glb',
+            applyGltfModel
+          );
         }
-      },
-      function (err) {
-        console.warn('Local file load fallback to CDN...', err);
-        loader.load(
-          'https://cdn.jsdelivr.net/gh/jnyang6270-art/moon@main/Hi3D-moon.glb',
-          applyGltfModel
-        );
+      );
+
+      // --- 6. Scroll Tracking & Smooth Interpolation ---
+      let targetScroll = 0;
+      let smoothScroll = 0;
+      let isAutoPlaying = false;
+      let autoPlayDirection = 1;
+
+      window.addEventListener('scroll', function () {
+        if (!isAutoPlaying) {
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          targetScroll = maxScroll > 0 ? clamp(window.scrollY / maxScroll, 0, 1) : 0;
+        }
+      }, { passive: true });
+
+
+
+      // --- 7. Master Animation & Render Loop ---
+      let lastTime = performance.now();
+      let animFrameId = null;
+
+      function tick(now) {
+        const dt = clamp(now - lastTime, 0, 64);
+        lastTime = now;
+
+        // Auto Play Animation loop if active
+        if (isAutoPlaying) {
+          targetScroll += 0.004 * autoPlayDirection;
+          if (targetScroll >= 1) {
+            targetScroll = 1;
+            autoPlayDirection = -1;
+          } else if (targetScroll <= 0) {
+            targetScroll = 0;
+            autoPlayDirection = 1;
+          }
+          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          window.scrollTo(0, targetScroll * maxScroll);
+        }
+
+        // Smooth scroll decay
+        const scrollFactor = 1 - Math.exp(-dt / 180);
+        smoothScroll += (targetScroll - smoothScroll) * scrollFactor;
+        if (Math.abs(targetScroll - smoothScroll) < 0.00008) {
+          smoothScroll = targetScroll;
+        }
+
+        // Smooth mouse tracking
+        smoothMouseX += (mouseX - smoothMouseX) * 0.08;
+        smoothMouseY += (mouseY - smoothMouseY) * 0.08;
+
+        // Section transition: scroll 8% -> 80%
+        const rawTrans = clamp((smoothScroll - 0.08) / 0.72);
+        const transition = easeInOutCubic(rawTrans);
+
+        // A. Background Parallax: Accurately compute true rendered height so the bottom sea is 100% reached
+        const naturalRatio = (landscapeImg.naturalHeight && landscapeImg.naturalWidth)
+          ? (landscapeImg.naturalHeight / landscapeImg.naturalWidth)
+          : (1024 / 576);
+        const imgWidth = landscapeImg.getBoundingClientRect().width || window.innerWidth * 1.05;
+        const trueRenderedHeight = Math.max(imgWidth * naturalRatio, window.innerHeight * 1.4);
+        const maxShift = Math.max(0, trueRenderedHeight - window.innerHeight);
+
+        const currentBgY = -maxShift * smoothScroll + smoothMouseY * 12;
+        const currentBgX = smoothMouseX * -15;
+        landscapeImg.style.transform = `translate3d(calc(-50% + ${currentBgX}px), ${currentBgY}px, 0)`;
+
+        // B. Intro timing
+        let introProgress = clamp((now - introStartTime) / 1350);
+
+        // Continuous ambient floating wave
+        const idleFloat = Math.sin(now * 0.002) * 14;
+        const idleRotate = now * 0.0004;
+
+        // C. Hero Title Letter Animations
+        const nHero = heroSpans.length;
+        heroSpans.forEach((span, i) => {
+          const dir = i % 2 === 0 ? -1 : 1;
+
+          // Enter animation (intro)
+          const enterP = easeOutCubic(clamp((introProgress - i * 0.024) / 0.63));
+          const initX = (1 - enterP) * (dir * 52 + 80);
+          const initY = (1 - enterP) * -310;
+          const initRotX = (1 - enterP) * 74;
+          const initRotZ = (1 - enterP) * dir * 9;
+          let opacity = enterP;
+
+          // Leave animation (scroll scatter)
+          const leaveP = easeInOutCubic(clamp((smoothScroll - 0.08 - i * 0.019) / 0.29));
+          const scatterX = leaveP * ((i - (nHero - 1) / 2) * 39 + dir * 28);
+          const scatterY = -430 * Math.pow(leaveP, 1.8);
+          const scatterRotX = -leaveP * 24;
+          const scatterRotZ = leaveP * dir * (17 + i * 1.7);
+
+          const fadeOut = 1 - clamp((leaveP - 0.58) / 0.42);
+          opacity *= fadeOut;
+
+          // Mouse reactive parallax on titles
+          const mouseTiltX = smoothMouseX * (i - nHero / 2) * 1.2;
+          const mouseTiltY = smoothMouseY * 6;
+
+          const finalX = initX + scatterX + mouseTiltX;
+          const finalY = initY + scatterY + mouseTiltY;
+          const finalRotX = initRotX + scatterRotX + smoothMouseY * -8;
+          const finalRotZ = initRotZ + scatterRotZ + smoothMouseX * 4;
+
+          span.style.transform = `translate3d(${finalX}px, ${finalY}px, 0) rotateX(${finalRotX}deg) rotateZ(${finalRotZ}deg)`;
+          span.style.opacity = opacity;
+        });
+
+        // D. "The Difference" Title Letter Animations
+        const nDiff = diffSpans.length;
+        diffSpans.forEach((span, i) => {
+          const enterP = easeOutBack(clamp((smoothScroll - 0.27 - i * 0.006) / 0.22));
+          const startY = (1 - enterP) * 250;
+          const startX = (1 - enterP) * ((i - nDiff / 2) * 9);
+          const rotX = (1 - enterP) * -66;
+          const rotZ = (i % 2 === 0 ? -1 : 1) * 5 * (1 - enterP);
+
+          const opacity = clamp((smoothScroll - 0.27 - i * 0.005) / 0.13);
+
+          span.style.transform = `translate3d(${startX}px, ${startY}px, 0) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+          span.style.opacity = opacity;
+        });
+
+        // E. Ingredient Callouts Animations
+        calloutData.forEach(({ order, tile, label }) => {
+          const tileP = easeOutBack(clamp((smoothScroll - 0.63 - order * 0.026) / 0.13));
+          const tileRot = (1 - tileP) * 18;
+          tile.style.transform = `scale(${tileP}) rotate(${tileRot}deg)`;
+          tile.style.opacity = tileP;
+
+          const labelP = easeOutCubic(clamp((smoothScroll - 0.74 - order * 0.025) / 0.17));
+          label.style.transform = `scaleX(${labelP})`;
+          label.style.opacity = labelP;
+        });
+
+        // F. Cookie / Moon 3D Transformation & Dynamic Motion
+        const cookieIntro = easeOutBack(clamp((introProgress - 0.22) / 0.72));
+
+        // Position
+        const targetHeroX = 0;
+        const targetHeroY = layoutState.heroY;
+        const curHeroX = lerp(155, targetHeroX, cookieIntro);
+        const curHeroY = lerp(430, targetHeroY, cookieIntro);
+
+        let finalCookieY = lerp(curHeroY, layoutState.sectionY, transition) + Math.sin(transition * Math.PI) * 9 + idleFloat;
+        let finalCookieX = curHeroX + Math.sin(transition * Math.PI) * -20 + smoothMouseX * 18;
+
+        // Scale
+        const curHeroScale = lerp(0.18, layoutState.heroScale, cookieIntro);
+        const finalCookieScale = lerp(curHeroScale, layoutState.sectionScale * 0.96, transition);
+
+        cookieGroup.position.set(finalCookieX, -finalCookieY, 0);
+        cookieGroup.scale.set(finalCookieScale, finalCookieScale, finalCookieScale);
+
+        // Dynamic 3D Rotation: Scroll Flip + Continuous Idle Spin + Mouse Tilt
+        cookieGroup.rotation.y = transition * Math.PI + idleRotate + smoothMouseX * 0.35;
+        cookieGroup.rotation.z = lerp(-0.09, 0.19, transition) + Math.sin(now * 0.0015) * 0.03;
+        cookieGroup.rotation.x = Math.sin(now * 0.001) * 0.06 + smoothMouseY * -0.3;
+
+        // Render Three.js scene
+        renderer.render(scene, camera);
+
+        animFrameId = requestAnimationFrame(tick);
       }
-    );
 
-    function tick(now) {
-      const smoothScroll = window.__scene ? window.__scene.scroll : 0;
-      const mx = window.__scene ? window.__scene.mouseX : 0;
-      const my = window.__scene ? window.__scene.mouseY : 0;
+      animFrameId = requestAnimationFrame(tick);
 
-      const transition = easeInOutCubic(smoothScroll);
-      const introP = ready ? clamp((now - loadStartTime) / 1200) : 0;
-
-      // 1. Initial State (Scroll = 0): Moon sits right in the dead center between "三" and "分"
-      const heroDiameter = Math.min(w * 0.42, h * 0.58, 480);
-      const heroX = 0;
-      const heroY = 0;
-
-      // 2. Final State (Scroll = 1): Moon floats centered between the 4 callouts and directly above bottom title
-      const sectionDiameter = Math.min(w * 0.44, h * 0.54, 460);
-      const sectionX = 0;
-      const sectionY = h * 0.04;
-
-      // Current interpolation
-      const curDiameter = lerp(heroDiameter, sectionDiameter, transition);
-      const curX = lerp(heroX, sectionX, transition) + mx * 16;
-      const curY = lerp(heroY, sectionY, transition) + Math.sin(now * 0.0014) * 8 + my * 12;
-
-      moonGroup.position.set(curX, curY, 0);
-      moonGroup.scale.set(curDiameter, curDiameter, curDiameter);
-
-      // Continuous ambient rotation and mouse reactive tilt
-      moonGroup.rotation.y = now * 0.00025 + mx * 0.35;
-      moonGroup.rotation.x = Math.sin(now * 0.001) * 0.06 + my * -0.25;
-
-      const opacity = ready ? clamp(introP * 1.5) : 0;
-      innerGroup.traverse((child) => {
-        if (child.isMesh && child.material) {
-          const mats = Array.isArray(child.material) ? child.material : [child.material];
-          mats.forEach((mat) => {
-            mat.transparent = opacity < 1;
-            mat.opacity = opacity;
-          });
-        }
+      window.addEventListener('pagehide', () => {
+        if (animFrameId) cancelAnimationFrame(animFrameId);
       });
-
-      renderer.render(scene, camera);
-      requestAnimationFrame(tick);
-    }
-
-    requestAnimationFrame(tick);
   </script>
 </body>
 </html>
