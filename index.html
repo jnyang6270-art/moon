@@ -525,93 +525,6 @@
       transition: color 0.3s ease;
     }
 
-    /* Ingredient Callouts */
-    .callouts-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-    }
-
-    .callout-item {
-      position: absolute;
-      height: 81px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      pointer-events: auto;
-      cursor: pointer;
-    }
-
-    .callout-label {
-      height: 81px;
-      border-radius: 24px;
-      background: rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(35.8px);
-      -webkit-backdrop-filter: blur(35.8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-family: 'Suisse Fallback', 'Inter', Arial, sans-serif;
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      padding: 0 26px;
-      white-space: nowrap;
-      will-change: transform, opacity;
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-    .callout-tile {
-      width: 81px;
-      height: 81px;
-      border-radius: 24.1277px;
-      background: #0b0b0b;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      will-change: transform, opacity;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-    }
-
-    .callout-item:hover .callout-tile {
-      transform: scale(1.08) rotate(5deg) !important;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-    }
-    .callout-item:hover .callout-label {
-      background: rgba(0, 0, 0, 0.32);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Callout absolute placements */
-    .callout-0 {
-      right: calc(50% + var(--section-cookie-radius) + 36px);
-      top: calc(50% - (var(--section-cookie-radius) * 0.84) - 40.5px);
-    }
-
-    .callout-1 {
-      left: calc(50% + var(--section-cookie-radius) + 36px);
-      top: calc(50% - (var(--section-cookie-radius) * 0.84) - 40.5px);
-    }
-
-    .callout-2 {
-      right: calc(50% + var(--section-cookie-radius) + 36px);
-      top: calc(50% + (var(--section-cookie-radius) * 0.84) - 40.5px);
-    }
-
-    .callout-3 {
-      left: calc(50% + var(--section-cookie-radius) + 36px);
-      top: calc(50% + (var(--section-cookie-radius) * 0.84) - 40.5px);
-    }
-
-    .callout-0 .callout-label { width: 275px; }
-    .callout-1 .callout-label { width: 288px; }
-    .callout-2 .callout-label { width: 293px; }
-    .callout-3 .callout-label { width: 238px; }
-
     /* Responsive Media Queries */
     @media (max-width: 1060px) {
       :root {
@@ -724,58 +637,6 @@
 
         <!-- Section 2 Title -->
         <h2 class="title-container diff-title" id="diff-title">你的解籤日記</h2>
-
-        <!-- Callouts Layer -->
-        <div class="callouts-layer" id="callouts-layer">
-          <!-- Callout 0: Top-Left (label, icon) -->
-          <div class="callout-item callout-0" data-order="0">
-            <div class="callout-label" style="transform-origin: right center;">70% Single-Origin Dark</div>
-            <div class="callout-tile">
-              <!-- Chocolate Icon -->
-              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                <line x1="3" y1="9" x2="21" y2="9"></line>
-                <line x1="3" y1="15" x2="21" y2="15"></line>
-                <line x1="9" y1="3" x2="9" y2="21"></line>
-                <line x1="15" y1="3" x2="15" y2="21"></line>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Callout 1: Top-Right (icon, label) -->
-          <div class="callout-item callout-1" data-order="1">
-            <div class="callout-tile">
-              <!-- Leaf Icon -->
-              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
-                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
-              </svg>
-            </div>
-            <div class="callout-label" style="transform-origin: left center;">Organic Grass-fed Butter</div>
-          </div>
-
-          <!-- Callout 2: Bottom-Left (label, icon) -->
-          <div class="callout-item callout-2" data-order="2">
-            <div class="callout-label" style="transform-origin: right center;">Organic Maple &amp; Coconut</div>
-            <div class="callout-tile">
-              <!-- Egg Icon -->
-              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 22c4.97 0 9-4.03 9-9 0-4.97-4.03-11-9-11S3 8.03 3 13c0 4.97 4.03 9 9 9z"></path>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Callout 3: Bottom-Right (icon, label) -->
-          <div class="callout-item callout-3" data-order="3">
-            <div class="callout-tile">
-              <!-- Flash Icon -->
-              <svg width="24.13" height="24.13" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-            </div>
-            <div class="callout-label" style="transform-origin: left center;">Light, Aerated Snap</div>
-          </div>
-        </div>
       </div>
 
 
@@ -830,14 +691,6 @@
       const diffTitleEl = document.getElementById('diff-title');
       const heroSpans = splitTextToSpans(heroTitleEl);
       const diffSpans = splitTextToSpans(diffTitleEl);
-
-      const calloutEls = Array.from(document.querySelectorAll('.callout-item'));
-      const calloutData = calloutEls.map(el => {
-        const order = parseInt(el.getAttribute('data-order'), 10);
-        const tile = el.querySelector('.callout-tile');
-        const label = el.querySelector('.callout-label');
-        return { el, order, tile, label };
-      });
 
       // --- 3. Stage & Layout calculations ---
       const stageEl = document.getElementById('stage');
@@ -1163,19 +1016,7 @@
           span.style.opacity = opacity;
         });
 
-        // E. Ingredient Callouts Animations
-        calloutData.forEach(({ order, tile, label }) => {
-          const tileP = easeOutBack(clamp((smoothScroll - 0.63 - order * 0.026) / 0.13));
-          const tileRot = (1 - tileP) * 18;
-          tile.style.transform = `scale(${tileP}) rotate(${tileRot}deg)`;
-          tile.style.opacity = tileP;
-
-          const labelP = easeOutCubic(clamp((smoothScroll - 0.74 - order * 0.025) / 0.17));
-          label.style.transform = `scaleX(${labelP})`;
-          label.style.opacity = labelP;
-        });
-
-        // F. Cookie / Moon 3D Transformation & Dynamic Motion
+        // E. Cookie / Moon 3D Transformation & Dynamic Motion
         const cookieIntro = easeOutBack(clamp((introProgress - 0.22) / 0.72));
 
         // Position
